@@ -1,0 +1,15 @@
+{
+  "chunks": 221,
+  "model": "intfloat/multilingual-e5-large",
+  "embedder_kind": "e5",
+  "dimensions": 1024,
+  "collection": "prometeo",
+  "channels": [
+    "colleague-chats",
+    "email-threads",
+    "llm-chats",
+    "phone-calls",
+    "remote-meetings",
+    "web-searches"
+  ]
+}

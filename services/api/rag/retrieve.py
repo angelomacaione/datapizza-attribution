@@ -58,12 +58,20 @@ class HybridRetriever:
 
     def search(self, query: str, k: int = 8, *,
                channels: list[str] | None = None,
-               registers: list[str] | None = None) -> list[Hit]:
+               registers: list[str] | None = None,
+               query_vector: list[float] | None = None) -> list[Hit]:
+        """query_vector permette di saltare l'embedding.
+
+        Serve a due cose diverse: valutare il retrieval da un ambiente che non
+        puo' caricare il modello (i vettori delle domande arrivano da fuori) e,
+        in produzione, riusare il vettore di una domanda gia' vista senza
+        ripagarne il calcolo.
+        """
         if not self._chunks:
             return []
 
-        dense = self.store.search(self.collection, self.embedder.embed_query(query),
-                                  k=DENSE_POOL)
+        vec = query_vector if query_vector is not None else self.embedder.embed_query(query)
+        dense = self.store.search(self.collection, vec, k=DENSE_POOL)
         dense_rank = {c.id: i for i, c in enumerate(dense)}
 
         scores = self._bm25.get_scores(_tokenize(query))

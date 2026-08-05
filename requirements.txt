@@ -1,0 +1,32 @@
+# Richiede Python >= 3.11 (consigliato 3.12).
+# Il Python di sistema di macOS (Command Line Tools) e' 3.9 e non basta:
+# datapizza-ai vuole >= 3.10, numpy e scikit-learn >= 3.11.
+#
+#   python3.12 -m venv .venv && source .venv/bin/activate
+#   pip install -U pip && pip install -r requirements.txt
+
+# framework
+datapizza-ai>=0.1.0
+datapizza-ai-clients-anthropic>=0.0.8   # i crediti Claude passano da qui
+
+# retrieval
+fastembed>=0.8.0                        # embedding locale (scarica e5 al primo giro)
+rank-bm25>=0.2.2                        # ramo lessicale
+numpy>=1.26
+scikit-learn>=1.4                       # solo per l'embedder di ripiego offline
+
+# --- vincoli per Mac Intel -------------------------------------------------
+# Due dipendenze binarie hanno smesso di pubblicare build x86_64 per macOS.
+# Senza questi limiti pip prende l'ultima versione, non trova un pacchetto
+# pronto e prova a compilare dai sorgenti: servirebbero Rust, OpenSSL e
+# pkg-config, e l'installazione muore. Su Apple Silicon e su Linux i marcatori
+# non scattano e si prende comunque l'ultima versione.
+#
+# onnxruntime  e' il motore sotto fastembed; ultima con build Intel: 1.23.2
+# cryptography arriva da datapizza-ai -> mcp -> pyjwt[crypto]; ultima: 48.0.1
+onnxruntime<1.24; platform_machine == "x86_64" and sys_platform == "darwin"
+cryptography<49; platform_machine == "x86_64" and sys_platform == "darwin"
+
+# api (serve al passo successivo, non alla build dell'indice)
+fastapi>=0.110
+uvicorn[standard]>=0.29
