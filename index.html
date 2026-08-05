@@ -9,23 +9,58 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* ─────────────────────────────────────────────────────────────
-   TOKEN — estratti dai custom properties serviti da datapizza.tech
-   (computed styles, 2026-08-05). Nessun valore inventato.
-   Sostituibili in blocco con l'output del compiler.
-   ───────────────────────────────────────────────────────────── */
+/* ────────────────────────────────────────────────────────────
+   TOKEN
+   Primo blocco: canonical Datapizza, nomi e valori verbatim
+   dall'emissione del compiler amaca.ai (.amaca, adapter DTCG,
+   143 token). Non un valore e' stato scelto qui.
+   Secondo blocco: strato semantico, cioe' quale loro token porta
+   quale ruolo in questa interfaccia. E' l'unica cosa decisa qui.
+   Terzo blocco: tipografia, spaziatura e i raggi diversi da 8px
+   NON esistono nei loro token (coverage: open). Sono miei, e sono
+   segnati come tali invece di essere spacciati per loro.
+   ──────────────────────────────────────────────────────────── */
 :root{
-  --dp-ink:#0b2a35; --dp-ink-2:#516778; --dp-ink-3:#859bab;
-  --dp-surface:#fdfeff; --dp-surface-2:#f9fafb; --dp-surface-3:#eceff2;
-  --dp-border:#d5dde2; --dp-border-2:#b0bfc9; --dp-deep:#0d1f2e;
-  --dp-accent:#1f57f1; --dp-accent-2:#3578fc; --dp-accent-50:#eef5ff; --dp-accent-100:#dae8ff;
-  --dp-azure:#1b64f5; --dp-azure-50:#eef6ff;
-  --dp-warn:#f97a07; --dp-warn-50:#fff8eb; --dp-warn-200:#ffcb6c;
-  --dp-danger:#d7342b; --dp-danger-50:#fef3f2; --dp-danger-200:#fdcecb;
-  --dp-r-xs:4px; --dp-r-sm:6px; --dp-r:8px; --dp-r-lg:12px; --dp-r-xl:16px;
+  /* canonical Datapizza — verbatim */
+  --white:#fdfeff;
+  --black-950:#0b2a35; --blue-950:#0d1f2e;
+  --neutral-50:#f9fafb; --neutral-100:#eceff2; --neutral-200:#d5dde2;
+  --neutral-300:#b0bfc9; --neutral-600:#516778;
+  --blueribbon-50:#eef5ff; --blueribbon-100:#dae8ff; --blueribbon-500:#3578fc;
+  --blueribbon-600:#1f57f1;
+  --azure-50:#eef6ff; --azure-200:#bcdcff; --azure-800:#1740b6;
+  --pastelgreen-50:#f0fdf4; --pastelgreen-200:#bbf7d2;
+  --pastelgreen-700:#158040;
+  --yellow-50:#fff8eb; --yellow-200:#ffcb6c; --yellow-500:#f97a07;
+  --yellow-800:#942a0c; --yellow-900:#7a230d;
+  --red-50:#fef3f2; --red-200:#fdcecb; --red-600:#d7342b;
+  --red-800:#96241e; --red-900:#7c2520;
+  --primary:#fff;
+  --radius:8px;
+
+  /* strato semantico — ruolo -> loro token */
+  --dp-ink:var(--black-950); --dp-ink-2:var(--neutral-600); --dp-ink-3:var(--neutral-600);
+  --dp-surface:var(--white); --dp-surface-2:var(--neutral-50); --dp-surface-3:var(--neutral-100);
+  --dp-border:var(--neutral-200); --dp-border-2:var(--neutral-300); --dp-deep:var(--blue-950);
+  --dp-accent:var(--blueribbon-600); --dp-accent-2:var(--blueribbon-500);
+  --dp-accent-50:var(--blueribbon-50); --dp-accent-100:var(--blueribbon-100);
+  --dp-azure-50:var(--azure-50); --dp-azure-200:var(--azure-200); --dp-azure-ink:var(--azure-800);
+  --dp-ok-50:var(--pastelgreen-50); --dp-ok-200:var(--pastelgreen-200);
+  --dp-ok-ink:var(--pastelgreen-700);
+  --dp-warn:var(--yellow-500); --dp-warn-50:var(--yellow-50); --dp-warn-200:var(--yellow-200);
+  --dp-warn-ink:var(--yellow-800); --dp-warn-ink-2:var(--yellow-900);
+  --dp-danger:var(--red-600); --dp-danger-50:var(--red-50); --dp-danger-200:var(--red-200);
+  --dp-danger-ink:var(--red-800); --dp-danger-ink-2:var(--red-900);
+  --dp-r:var(--radius);
+  --dp-rule:color-mix(in srgb, var(--white) 25%, transparent);
+  --dp-rect-fill:color-mix(in srgb, var(--blueribbon-600) 11%, transparent);
+  --dp-rect-halo:color-mix(in srgb, var(--blueribbon-600) 18%, transparent);
+
+  /* miei — nessun token corrispondente nel loro sistema */
+  --dp-r-xs:4px; --dp-r-sm:6px; --dp-r-lg:12px;
   --dp-sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   --dp-mono:"Space Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
-  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px;
   --ease:cubic-bezier(.4,0,.2,1);
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -45,12 +80,12 @@ button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:p
   padding:var(--s3) var(--s5);background:var(--dp-deep);color:var(--dp-surface);
 }
 .top h1{font-size:15px;font-weight:600;margin:0;letter-spacing:-.01em}
-.top .sub{font-size:13px;color:#b0bfc9;margin:0}
+.top .sub{font-size:13px;color:var(--neutral-300);margin:0}
 .top .spacer{flex:1}
 .pill{
   display:inline-flex;align-items:center;gap:6px;font-family:var(--dp-mono);
   font-size:11px;letter-spacing:.02em;padding:5px 10px;border-radius:999px;
-  border:1px solid rgba(253,254,255,.25);color:#dae8ff;white-space:nowrap;
+  border:1px solid var(--dp-rule);color:var(--dp-accent-100);white-space:nowrap;
 }
 .pill .dot{width:6px;height:6px;border-radius:50%;background:var(--dp-accent-2);flex:none}
 
@@ -58,12 +93,12 @@ button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:p
 .prov{
   display:flex;gap:var(--s4);flex-wrap:wrap;align-items:baseline;
   padding:10px var(--s5);background:var(--dp-warn-50);
-  border-bottom:1px solid var(--dp-warn-200);font-size:12.5px;color:#7a230d;
+  border-bottom:1px solid var(--dp-warn-200);font-size:12.5px;color:var(--dp-warn-ink-2);
 }
 .prov b{font-weight:600}
 .prov .lbl{
   font-family:var(--dp-mono);font-size:10.5px;letter-spacing:.06em;
-  text-transform:uppercase;color:#942a0c;border:1px solid var(--dp-warn-200);
+  text-transform:uppercase;color:var(--dp-warn-ink);border:1px solid var(--dp-warn-200);
   padding:2px 6px;border-radius:var(--dp-r-xs);
 }
 
@@ -122,10 +157,10 @@ td .claim{display:inline-block;width:auto}
 }
 .chip svg{width:12px;height:12px;flex:none}
 .chip .num{font-family:var(--dp-mono);font-size:10.5px;opacity:.85}
-.chip--verificabile{background:var(--dp-accent-50);border-color:var(--dp-accent-100);color:#1742de}
-.chip--inferita{background:var(--dp-warn-50);border-color:var(--dp-warn-200);color:#942a0c;border-style:dashed}
-.chip--assente{background:var(--dp-danger-50);border-color:var(--dp-danger-200);color:#96241e}
-.chip--presente{background:var(--dp-azure-50);border-color:#bcdcff;color:#1740b6}
+.chip--verificabile{background:var(--dp-ok-50);border-color:var(--dp-ok-200);color:var(--dp-ok-ink)}
+.chip--inferita{background:var(--dp-warn-50);border-color:var(--dp-warn-200);color:var(--dp-warn-ink);border-style:dashed}
+.chip--assente{background:var(--dp-danger-50);border-color:var(--dp-danger-200);color:var(--dp-danger-ink)}
+.chip--presente{background:var(--dp-azure-50);border-color:var(--dp-azure-200);color:var(--dp-azure-ink)}
 
 /* ── evidenza ── */
 .ev-empty{
@@ -135,9 +170,9 @@ td .claim{display:inline-block;width:auto}
 .ev-note{
   border-left:3px solid var(--dp-danger);background:var(--dp-danger-50);
   padding:var(--s3) var(--s4);border-radius:0 var(--dp-r-sm) var(--dp-r-sm) 0;
-  font-size:13.5px;color:#7c2520;margin-bottom:var(--s4);
+  font-size:13.5px;color:var(--dp-danger-ink-2);margin-bottom:var(--s4);
 }
-.ev-note.is-inferita{border-left-color:var(--dp-warn);background:var(--dp-warn-50);color:#7a230d}
+.ev-note.is-inferita{border-left-color:var(--dp-warn);background:var(--dp-warn-50);color:var(--dp-warn-ink-2)}
 .ev-list{display:flex;flex-direction:column;gap:var(--s2);margin:0;padding:0;list-style:none}
 .ev{
   border:1px solid var(--dp-border);border-radius:var(--dp-r);background:var(--dp-surface);
@@ -162,13 +197,13 @@ td .claim{display:inline-block;width:auto}
 }
 .page-toggle:hover{background:var(--dp-accent-100)}
 .page-view{
-  position:relative;width:100%;height:0;overflow:hidden;background:#fff;
+  position:relative;width:100%;height:0;overflow:hidden;background:var(--primary);
   border:1px solid var(--dp-border);border-radius:var(--dp-r);margin-bottom:var(--s4);
 }
 .page-zoom{position:absolute;top:0;left:0;width:100%;transform-origin:0 0}
-.page-wrap{position:relative;background:#fff}
+.page-wrap{position:relative;background:var(--primary)}
 .page-wrap img{display:block;width:100%;height:auto}
-.rect{position:absolute;border:2px solid var(--dp-accent);background:rgba(31,87,241,.10);border-radius:2px;transition:opacity .2s var(--ease)}
+.rect{position:absolute;border:2px solid var(--dp-accent);background:var(--dp-rect-fill);border-radius:2px;transition:opacity .2s var(--ease)}
 .rect.is-dim{border-color:var(--dp-border-2);background:transparent;border-style:dashed;opacity:.55}
 .page-cap{font-family:var(--dp-mono);font-size:11px;color:var(--dp-ink-2);margin:0 0 var(--s3)}
 
@@ -508,7 +543,7 @@ function pageBlock(filename, pageNo, highlightRids, activeRid) {
     return r.rects_in.map(([x, y, w, hh]) =>
       '<span class="rect' + (on ? '' : ' is-dim') + '" style="left:' + (x / p.width_in * 100) + '%;top:' +
       (y / p.height_in * 100) + '%;width:' + (w / p.width_in * 100) + '%;height:' + (hh / p.height_in * 100) +
-      '%' + (act ? ';box-shadow:0 0 0 3px rgba(31,87,241,.18)' : '') + '"></span>').join('');
+      '%' + (act ? ';box-shadow:0 0 0 3px var(--dp-rect-halo)' : '') + '"></span>').join('');
   }).join('');
 
   const ratio = p.height_in / p.width_in;      // altezza pagina / larghezza pagina
@@ -607,8 +642,15 @@ document.getElementById('method-body').innerHTML =
   'Il componente resta uno.</p>' +
   '<h5>Il colore non porta mai il significato da solo</h5>' +
   '<div class="legend">' + chip('verificabile', 1) + chip('inferita', .8) + chip('assente', 0) + chipPresente() + '</div>' +
-  '<p style="margin-top:16px">Palette e raggi presi dai custom properties serviti da datapizza.tech. ' +
-  'Nessun valore inventato: dove i loro token non hanno un colore, non ne è stato aggiunto uno.</p>';
+  '<h5>Da dove vengono i colori</h5>' +
+  '<p>Non sono stati scelti qui. Il design system di Datapizza è stato compilato nel canonical Amaca ' +
+  '(143 token, adapter DTCG), e questa interfaccia è una proiezione di quel canonical: ogni colore a schermo ' +
+  'è un loro token chiamato per nome. L’asse dell’appoggio sta su <code>pastelgreen</code>, <code>yellow</code>, ' +
+  '<code>red</code>; quello dell’integrità su <code>azure</code>; la selezione su <code>blueribbon</code>. ' +
+  'Famiglie diverse per domande diverse.</p>' +
+  '<p><b>Tipografia e spaziatura non esistono nei loro token</b>: la copertura le dà aperte, e i loro custom ' +
+  'properties infatti non ne contengono. Il carattere viene dai computed styles del sito (Inter, Space Mono) ' +
+  'e la scala di spaziatura è mia. Nel foglio di stile sono segnate come tali, non presentate come loro.</p>';
 
 renderLeft(); renderRight();
 </script>

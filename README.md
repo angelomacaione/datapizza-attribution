@@ -41,9 +41,11 @@ Il calcolo è deterministico e rieseguibile: nessuna chiamata a modello. Il pont
 
 ## Note di realizzazione
 
-Palette, scale e raggi provengono dai custom properties serviti da `datapizza.tech`, letti dai computed styles. Nessun valore inventato: dove i loro token non hanno un colore, non ne è stato aggiunto uno.
+I colori non sono stati scelti a mano. Il design system di Datapizza è stato compilato nel canonical del [compilatore Amaca](https://amaca.design) — 143 token, adapter DTCG — e questa interfaccia è una proiezione di quel canonical: ogni colore a schermo è un loro token chiamato per nome. I due assi stanno su famiglie diverse apposta: l'appoggio su `pastelgreen`, `yellow`, `red`; l'integrità su `azure`; la selezione su `blueribbon`.
 
-Il colore non porta mai il significato da solo — ogni stato ha etichetta e icona. `prefers-reduced-motion` e `:focus-visible` sono gestiti. Verificato con jsdom, 56 controlli, più un passaggio su Chromium headless senza errori in console.
+**Tipografia e spaziatura non esistono nei loro token** — la copertura le dà aperte, e i loro custom properties infatti non ne contengono. Il carattere viene dai computed styles del sito (Inter, Space Mono) e la scala di spaziatura è mia. Nel foglio di stile sono marcate come tali, in un blocco separato, invece di essere presentate come loro.
+
+Il colore non porta mai il significato da solo: ogni stato ha etichetta e icona. `prefers-reduced-motion` e `:focus-visible` sono gestiti, e tutte le coppie testo-sfondo passano AA. Verificato con jsdom, 75 controlli — inclusi i gate di provenienza che rifiutano un esadecimale che non esista nel canonical — più un passaggio su Chromium headless senza errori in console.
 
 ---
 
