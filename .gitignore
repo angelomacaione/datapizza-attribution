@@ -1,0 +1,12 @@
+# Artefatti rigenerabili dell'indice.
+# I chunk sì: sono piccoli e permettono di clonare e far girare senza build.
+# I vettori no: dipendono dal modello, pesano, e si ricostruiscono in un comando.
+index/*.vectors.npy
+index/tfidf.pkl
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.DS_Store
