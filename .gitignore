@@ -3,6 +3,7 @@
 # I vettori no: dipendono dal modello, pesano, e si ricostruiscono in un comando.
 index/*.vectors.npy
 index/tfidf.pkl
+index/probe-queries.json
 
 __pycache__/
 *.py[cod]
