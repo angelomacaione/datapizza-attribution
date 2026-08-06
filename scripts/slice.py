@@ -33,8 +33,12 @@ DEFAULT = [0, 6, 16]   # rental K1 · e-stop livello 3 · fatturato Booster (fuo
 
 
 def rispondi(domanda: str, hits) -> str:
+    # Le date vanno date anche all'estensore, non solo al giudice: nasconderle
+    # renderebbe le trappole temporali piu' vistose ma sarebbe una partita
+    # truccata. Se sbaglia avendole viste, il fallimento e' reale.
     passaggi = "\n\n".join(
-        f"[{i}] ({(h.chunk.metadata or {}).get('citation','')})\n{h.chunk.text}"
+        f"[{i}] {(h.chunk.metadata or {}).get('timestamp') or 'data ignota'} — "
+        f"({(h.chunk.metadata or {}).get('citation','')})\n{h.chunk.text}"
         for i, h in enumerate(hits, 1))
     prompt = (f"PASSAGGI DALL'ARCHIVIO:\n\n{passaggi}\n\n"
               f"DOMANDA:\n{domanda}")
@@ -70,9 +74,16 @@ def main() -> int:
                 print(f"              in {a.ancora.source_file} "
                       f"[{a.ancora.inizio_nel_file}:{a.ancora.fine_nel_file}] "
                       f"— {a.ancora.citation_label[:56]}")
+            if a.ancora_scartata:
+                print(f"              ✂ prova scartata dal revisore: {a.ancora_scartata[:110]}")
             if a.citazione_fantasma:
                 print(f"              ⚠ il giudice ha citato un frammento che NON esiste: "
                       f"\"{a.citazione_fantasma[:62]}\"")
+            if a.conflitto:
+                c=a.conflitto
+                print(f"              ⏳ CONFLITTO TEMPORALE — {c.nota[:78]}")
+                print(f"                 {c.prima['quando']}  {c.prima['dove'][:66]}")
+                print(f"                 {c.dopo['quando']}  {c.dopo['dove'][:66]}")
             if not a.ancora and a.passaggi:
                 etichette = ", ".join(p["citation"][:44] for p in a.passaggi[:2])
                 print(f"              cucito da: {etichette}")

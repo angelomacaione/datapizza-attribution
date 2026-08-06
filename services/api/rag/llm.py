@@ -61,7 +61,51 @@ La distinzione fra "contraddetto" e "non_trattato" e' la piu' importante e la pi
 
 Nel dubbio scegli "non_trattato". Un falso "supportato" e' l'errore piu' grave che puoi commettere.
 
+CONTROLLO TEMPORALE, da fare dopo aver deciso l'esito.
+
+Ogni passaggio ha una data. Un archivio racconta cose che cambiano: un ruolo viene riassegnato, una versione sostituita, una decisione ribaltata, un numero aggiornato. Puo' quindi capitare che l'affermazione sia sostenuta da un passaggio, e che un passaggio PIU' RECENTE dica qualcosa di diverso sullo stesso identico fatto.
+
+Se lo vedi, metti conflitto_temporale a true e indica in passaggi_in_conflitto i numeri dei passaggi coinvolti. In nota_temporale scrivi in una frase cosa e' cambiato.
+
+Questo NON cambia l'esito: se un passaggio sostiene l'affermazione, l'esito resta "supportato" anche quando un altro passaggio piu' recente la aggiorna. Sono due informazioni distinte e servono entrambe.
+
+Non segnalare conflitto quando un passaggio recente si limita a confermare o a dettagliare quello vecchio. Un piano che si arricchisce non e' un piano che cambia.
+
 In "citazione" riporta VERBATIM il frammento di passaggio che sostiene l'affermazione, copiato carattere per carattere. Se nessun frammento la sostiene alla lettera, lascia la stringa vuota."""
+
+
+SISTEMA_REVISORE = """Controlli le prove, non le affermazioni.
+
+Ricevi tre cose: un'affermazione, un verdetto gia' emesso su di essa, e UN SOLO frammento di testo con la sua data e la sua provenienza. Il frammento e' quello che verrebbe mostrato all'utente come prova di quel verdetto.
+
+La tua unica domanda e': questo frammento, da solo, giustifica quel verdetto?
+
+Non vedi il resto dell'archivio, e non ti serve. Non devi stabilire se l'affermazione sia vera: quello e' gia' stato deciso. Devi stabilire se un lettore che clicca su quella frase e legge questo frammento troverebbe li' dentro la ragione del verdetto.
+
+ATTENZIONE: il criterio cambia radicalmente a seconda del verdetto. Leggi quale dei due ti riguarda.
+
+VERDETTO "ripescato" — il frammento deve AFFERMARE il contenuto.
+Rispondi NO se:
+- il frammento parla di un soggetto diverso da quello dell'affermazione, anche se le parole si somigliano;
+- l'affermazione contiene una data, un nome, una quantita' o un ruolo che nel frammento non compaiono;
+- l'affermazione colloca il fatto in un momento diverso da quello del frammento;
+- il frammento e' sullo stesso argomento ma non contiene l'informazione affermata;
+- il frammento e' un'intestazione, un titolo o un elenco di partecipanti da cui l'affermazione e' stata dedotta.
+
+VERDETTO "non_supportato" — il frammento deve essere INCOMPATIBILE con l'affermazione.
+Qui il criterio e' rovesciato. Un frammento che attribuisce lo stesso fatto a una persona diversa, che riporta un numero diverso, che nega o smentisce, e' esattamente la prova giusta: e' il motivo per cui il verdetto e' negativo. In questi casi rispondi SI.
+Rispondi NO solo se:
+- il frammento riguarda un fatto diverso, e quindi non puo' smentire nulla;
+- il frammento e' semplicemente sullo stesso argomento senza dire niente di incompatibile;
+- il frammento non contraddice l'affermazione ma un'altra cosa che le sta accanto.
+
+In entrambi i casi, nel dubbio rispondi NO. Una prova sbagliata mostrata con sicurezza e' peggio di nessuna prova: un lettore che verifica e trova un frammento fuori bersaglio perde fiducia in tutto il resto."""
+
+
+@lru_cache(maxsize=2)
+def revisore() -> AnthropicClient:
+    return AnthropicClient(api_key=load_key(), model=MODEL_GIUDICE,
+                           system_prompt=SISTEMA_REVISORE, temperature=0.0)
 
 
 @lru_cache(maxsize=2)

@@ -418,10 +418,47 @@ def chunk_meeting(sec: Section, channel: str, src: str, ents: list[str]) -> list
                                ts_raw=ts_raw, kind="decision", source_file=src, entities=ents)
                 cursor += len(it)
         else:
-            out += _mk(sub.body, abs_start, channel=channel, section=sec.title,
-                       subsection=sub.title, speaker=None, addressee=None, ts=ts,
-                       ts_raw=ts_raw, kind="prose", source_file=src, entities=ents)
+            # Dentro "Note chiave" i blocchi sono gia' separati e attribuiti:
+            #   **Stato codice (Vincenzo)**
+            #   **E-stop (Stefano + Barbara)**
+            # Tenerli insieme produce un chunk che parla di quattro argomenti,
+            # il cui vettore e' la media di tutti e non somiglia a nessuno. Su
+            # un chunk cosi' il retrieval perde e il confronto fra passaggi non
+            # riesce piu' ad accostare due affermazioni sullo stesso tema.
+            for blocco, off, titolo, chi in _blocchi_attribuiti(sub.body):
+                out += _mk(blocco, abs_start + off, channel=channel, section=sec.title,
+                           subsection=f"{sub.title} · {titolo}" if titolo else sub.title,
+                           speaker=chi, addressee=None, ts=ts, ts_raw=ts_raw,
+                           kind="prose", source_file=src, entities=ents)
     return out
+
+
+# **Titolo del blocco (Persona)** su una riga da sola
+RE_BLOCCO_ATTRIBUITO = re.compile(r"^\*\*([^*\n]{3,80})\*\*\s*$", re.MULTILINE)
+
+
+def _blocchi_attribuiti(body: str) -> list[tuple[str, int, str | None, str | None]]:
+    """Spezza un corpo sui titoli in grassetto isolati.
+
+    Ritorna fette CONTIGUE (testo, offset, titolo, persona): gli offset devono
+    restare validi sul sorgente, altrimenti l'evidenziazione punta altrove.
+    """
+    teste = list(RE_BLOCCO_ATTRIBUITO.finditer(body))
+    if len(teste) < 2:
+        return [(body, 0, None, None)]
+    pezzi: list[tuple[str, int, str | None, str | None]] = []
+    if body[: teste[0].start()].strip():
+        pezzi.append((body[: teste[0].start()], 0, None, None))
+    for n, t in enumerate(teste):
+        fine = teste[n + 1].start() if n + 1 < len(teste) else len(body)
+        titolo = t.group(1).strip()
+        persona = None
+        m = re.search(r"\(([^)]+)\)\s*$", titolo)
+        if m:
+            persona = m.group(1).strip()
+            titolo = titolo[: m.start()].strip()
+        pezzi.append((body[t.start():fine], t.start(), titolo, persona))
+    return pezzi
 
 
 def chunk_llm(sec: Section, channel: str, src: str, ents: list[str]) -> list[Chunk]:

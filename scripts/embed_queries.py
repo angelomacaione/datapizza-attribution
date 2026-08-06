@@ -53,6 +53,14 @@ QUERIES = [
     # cose sparse su piu' canali, dove il registro cambia
     "Come è stata gestita la comunicazione con la stampa e l'embargo?",
     "Qual era lo stato d'animo della squadra la notte prima dell'evento?",
+    # trappole temporali: ricavate da conflitti reali trovati nel corpus da
+    # find_contradictions.py. Ognuna ha due risposte vere in momenti diversi,
+    # e quella sbagliata e' la piu' facile da pescare.
+    "Qual e' il tag della versione finale del codice utilizzata per DR2?",
+    "Quanti dottorandi SPQR hanno partecipato alle riunioni tecniche?",
+    "Il crisis statement per l'infortunio di un dipendente e' gia' stato approvato?",
+    "Come si comporta il portiere robotico durante la partita?",
+    "Chi ha in mano il trigger dell'e-stop il giorno dell'evento?",
     # fuori corpus: il vault non ne parla, il sistema deve dirlo
     "Qual è il fatturato annuo di Booster Robotics?",
     "Quante persone hanno assistito al match dal vivo?",
