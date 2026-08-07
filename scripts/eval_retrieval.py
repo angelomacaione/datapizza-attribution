@@ -38,10 +38,29 @@ OUT_OF_CORPUS = {
 }
 
 
+
+def probe_allineato(index_dir: Path) -> dict:
+    """Carica probe-queries.json solo se nasce dallo stesso modello dell'indice.
+
+    Il controllo non e' pedanteria: modelli diversi possono avere la stessa
+    dimensione, quindi il prodotto scalare si calcola lo stesso e nessuno
+    solleva un'eccezione. Il risultato e' un recupero che sembra sensato e non
+    lo e' — cioe' esattamente il difetto che questa demo esiste per denunciare.
+    """
+    probe = json.loads((index_dir / "probe-queries.json").read_text(encoding="utf-8"))
+    info = json.loads((index_dir / "build-info.json").read_text(encoding="utf-8"))
+    if probe.get("model") != info.get("model"):
+        raise SystemExit(
+            f"probe-queries.json e' stato scritto con {probe.get('model')} "
+            f"ma l'indice e' {info.get('model')}.\n"
+            f"Rigenera le domande con lo stesso modello:\n"
+            f"    EMBEDDING_PROVIDER=voyage python scripts/embed_queries.py")
+    return probe
+
 def main() -> int:
     index_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "index"
     store = NumpyVectorstore.load(index_dir)
-    probe = json.loads((index_dir / "probe-queries.json").read_text(encoding="utf-8"))
+    probe = probe_allineato(index_dir)
     retriever = HybridRetriever(store, embedder=None)  # embedder non serve
 
     matrix = store._matrix["prometeo"]

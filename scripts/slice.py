@@ -45,13 +45,32 @@ def rispondi(domanda: str, hits) -> str:
     return estensore().invoke(input=prompt).text.strip()
 
 
+
+def probe_allineato(index_dir: Path) -> dict:
+    """Carica probe-queries.json solo se nasce dallo stesso modello dell'indice.
+
+    Il controllo non e' pedanteria: modelli diversi possono avere la stessa
+    dimensione, quindi il prodotto scalare si calcola lo stesso e nessuno
+    solleva un'eccezione. Il risultato e' un recupero che sembra sensato e non
+    lo e' — cioe' esattamente il difetto che questa demo esiste per denunciare.
+    """
+    probe = json.loads((index_dir / "probe-queries.json").read_text(encoding="utf-8"))
+    info = json.loads((index_dir / "build-info.json").read_text(encoding="utf-8"))
+    if probe.get("model") != info.get("model"):
+        raise SystemExit(
+            f"probe-queries.json e' stato scritto con {probe.get('model')} "
+            f"ma l'indice e' {info.get('model')}.\n"
+            f"Rigenera le domande con lo stesso modello:\n"
+            f"    EMBEDDING_PROVIDER=voyage python scripts/embed_queries.py")
+    return probe
+
 def main() -> int:
     args = sys.argv[1:]
     index_dir = Path(args[0]) if args and not args[0].isdigit() else ROOT / "index"
     scelte = [int(a) for a in args if a.isdigit()] or DEFAULT
 
     store = NumpyVectorstore.load(index_dir)
-    probe = json.loads((index_dir / "probe-queries.json").read_text(encoding="utf-8"))
+    probe = probe_allineato(index_dir)
     retriever = HybridRetriever(store, embedder=None)
 
     for idx in scelte:

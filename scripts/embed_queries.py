@@ -18,6 +18,7 @@ gia' in cache dopo la build.
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -25,6 +26,21 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "services" / "api"))
 
 from rag.embedder import LocalEmbedder  # noqa: E402
+
+
+def scegli_embedder():
+    """Lo stesso modello dell'indice, o i vettori non vogliono dire niente.
+
+    Le domande e i chunk devono vivere nello stesso spazio vettoriale. e5 e
+    voyage-3 hanno per caso la stessa dimensione (1024): mescolarli non da'
+    errore, da' un recupero plausibile e sbagliato. Quindi qui si legge la
+    stessa variabile che comanda la build.
+    """
+    fornitore = os.environ.get("EMBEDDING_PROVIDER", "").lower()
+    if fornitore in ("voyage", "openai"):
+        from rag.embedder_api import ApiEmbedder
+        return ApiEmbedder(fornitore)
+    return LocalEmbedder()
 
 # Domande scelte per coprire i modi diversi in cui il retrieval puo' rompersi:
 # cifre esatte, codici prodotto, attribuzione di responsabilita', fatti sparsi
@@ -70,7 +86,7 @@ QUERIES = [
 
 
 def main() -> int:
-    embedder = LocalEmbedder()
+    embedder = scegli_embedder()
     print(f"modello: {embedder.model_name} (dim {embedder.dimensions})")
     vectors = [embedder.embed_query(q) for q in QUERIES]
     out = ROOT / "index" / "probe-queries.json"
