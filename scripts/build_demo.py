@@ -167,8 +167,10 @@ body{background:var(--muted);color:var(--foreground);font-family:var(--font-mono
 .conf{font-size:10.5px;color:var(--muted-foreground);margin-left:auto;
   text-transform:uppercase;letter-spacing:.1em}
 .conf b{color:var(--secondary);font-weight:600}
+/* i pallini da soli non dicono di cosa sono la misura: l'etichetta lo dice. */
+.conf em{font-style:normal;margin-right:6px;letter-spacing:.08em}
 .dato{color:var(--secondary);font-weight:600}
-.testa{display:flex;align-items:center;gap:calc(var(--spacing)*2);margin-bottom:calc(var(--spacing)*4)}
+.testa{display:flex;align-items:center;gap:calc(var(--spacing)*2);margin-bottom:calc(var(--spacing)*4);flex-wrap:wrap;row-gap:6px}
 .citata{font-size:13px;line-height:1.6;padding-left:calc(var(--spacing)*3);
   border-left:2px solid var(--border);margin-bottom:calc(var(--spacing)*3)}
 .motivo{font-size:13px;color:var(--muted-foreground);margin-bottom:calc(var(--spacing)*4);line-height:1.65}
@@ -456,7 +458,7 @@ function pannello(){
   const liv=a.confidenza>=.9?['ALTA',4]:a.confidenza>=.75?['MEDIA',3]:a.confidenza>=.5?['BASSA',2]:['MINIMA',1];
   let h=`<div class="card"><div class="testa">
     <span class="badge" data-c="${a.colore}">${a.stato.replace('_',' ')}</span>
-    <span class="conf">${dots(liv[1])}<b>${liv[0]}</b></span></div>
+    <span class="conf"><em>confidenza:</em>${dots(liv[1])}<b>${liv[0]}</b></span></div>
     <div class="citata">${esc(a.testo)}</div>
     <div class="motivo">${esc(a.motivo)}</div>`;
 
