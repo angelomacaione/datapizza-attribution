@@ -92,7 +92,13 @@ QUERIES = [
 def main() -> int:
     embedder = scegli_embedder()
     print(f"modello: {embedder.model_name} (dim {embedder.dimensions})")
-    vectors = [embedder.embed_query(q) for q in QUERIES]
+    # Una richiesta sola, non una per domanda: i limiti di frequenza dei
+    # fornitori contano le richieste. L'embedder locale non ha il metodo a
+    # blocchi e non ne ha bisogno, gira in casa.
+    if hasattr(embedder, "embed_queries"):
+        vectors = embedder.embed_queries(QUERIES)
+    else:
+        vectors = [embedder.embed_query(q) for q in QUERIES]
     out = ROOT / "index" / "probe-queries.json"
     out.write_text(json.dumps({
         "model": embedder.model_name,

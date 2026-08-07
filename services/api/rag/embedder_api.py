@@ -125,11 +125,11 @@ class ApiEmbedder(BaseEmbedder):
                 f"{self.conf['chiave_env']} assente: serve per l'embedding via API")
         return chiave
 
-    def _chiama(self, testi: list[str]) -> list[list[float]]:
+    def _chiama(self, testi: list[str], tipo: str = "document") -> list[list[float]]:
         corpo = {"model": self.model_name, "input": testi}
         if self.fornitore == "voyage":
             # voyage distingue documenti e domande: usarlo migliora il retrieval
-            corpo["input_type"] = "document"
+            corpo["input_type"] = tipo
         req = urllib.request.Request(
             self.conf["url"], data=json.dumps(corpo).encode(),
             headers={"content-type": "application/json",
@@ -142,19 +142,31 @@ class ApiEmbedder(BaseEmbedder):
 
     # ---- interfaccia datapizza -------------------------------------------
 
-    def embed(self, text: str | list[str], **kwargs):
-        singolo = isinstance(text, str)
-        testi = [text] if singolo else list(text)
-        if not testi:
-            return [] if not singolo else []
-        vettori = []
+    def _a_blocchi(self, testi: list[str], tipo: str) -> list[list[float]]:
+        """Il solo posto da cui esce una richiesta di embedding.
+
+        Una richiesta per blocco, mai una per testo: i limiti di frequenza dei
+        fornitori contano le richieste, non i caratteri. Venticinque domande
+        mandate una alla volta diventano venticinque 429 con attesa crescente —
+        mezz'ora — mentre le stesse venticinque in un blocco solo sono una
+        richiesta e qualche secondo.
+        """
+        vettori: list[list[float]] = []
         blocchi = [testi[i:i + BLOCCO] for i in range(0, len(testi), BLOCCO)]
         for n, blocco in enumerate(blocchi, 1):
             if len(blocchi) > 1:
                 print(f"  blocco {n}/{len(blocchi)} ({len(blocco)} testi)", flush=True)
-            vettori.extend(_con_ritenta(self._chiama, blocco))
+            vettori.extend(_con_ritenta(self._chiama, blocco, tipo))
             if n < len(blocchi):
                 time.sleep(PAUSA)
+        return vettori
+
+    def embed(self, text: str | list[str], **kwargs):
+        singolo = isinstance(text, str)
+        testi = [text] if singolo else list(text)
+        if not testi:
+            return []
+        vettori = self._a_blocchi(testi, "document")
         return vettori[0] if singolo else vettori
 
     async def a_embed(self, text: str | list[str], **kwargs):
@@ -163,22 +175,11 @@ class ApiEmbedder(BaseEmbedder):
     # ---- comodita' --------------------------------------------------------
 
     def embed_query(self, text: str) -> list[float]:
-        if self.fornitore == "voyage":
-            corpo_query = self._chiama_query(text)
-            return corpo_query
-        return self.embed(text)
+        return self._a_blocchi([text], "query")[0]
 
-    def _chiama_query(self, testo: str) -> list[float]:
-        return _con_ritenta(self._chiama_query_grezza, testo)
-
-    def _chiama_query_grezza(self, testo: str) -> list[float]:
-        corpo = {"model": self.model_name, "input": [testo], "input_type": "query"}
-        req = urllib.request.Request(
-            self.conf["url"], data=json.dumps(corpo).encode(),
-            headers={"content-type": "application/json",
-                     "authorization": f"Bearer {self._chiave()}"})
-        with urllib.request.urlopen(req, timeout=60, context=_SSL) as r:
-            return json.load(r)["data"][0]["embedding"]
+    def embed_queries(self, testi: list[str]) -> list[list[float]]:
+        """Piu' domande in una richiesta sola. Da preferire sempre al ciclo."""
+        return self._a_blocchi(list(testi), "query") if testi else []
 
     def embed_passages(self, texts: list[str]) -> list[list[float]]:
         return self.embed(texts)
