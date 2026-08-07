@@ -1,0 +1,404 @@
+#!/usr/bin/env python3
+"""
+Impagina la demo in un unico file HTML, con i dati veri dentro.
+
+    python3 scripts/build_demo.py
+
+Legge apps/web/demo-data.json e scrive apps/web/index.html: nessuna
+dipendenza, nessun server, si apre con un doppio clic. Colori e caratteri
+vengono dai token del design system di Datapizza (tokens.css).
+
+La pagina e' una chat sull'archivio Prometeo Cup. Le risposte precalcolate
+sono quattro; a una domanda diversa la chat risponde che non ce l'ha, invece
+di inventare. E' una demo statica e lo dice.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+DATI = ROOT / "apps" / "web" / "demo-data.json"
+USCITA = ROOT / "apps" / "web" / "index.html"
+
+# Token presi da tokens.css del design system Datapizza.
+# I quattro stati non esistono nel loro sistema: due li mappo sui loro token
+# (destructive per il rosso, chart-2 per l'arancione), due li aggiungo qui e li
+# segnalo come aggiunta locale invece di far finta che fossero gia' li'.
+TOKENS = """
+    /* --- da tokens.css di Datapizza -------------------------------- */
+    --background:#fff; --foreground:#111827; --card:#fff; --border:#e5e7eb;
+    --muted:#f3f4f6; --muted-foreground:#6b7280; --primary:#d87943;
+    --primary-foreground:#fff; --secondary:#527575; --destructive:#ef4444;
+    --radius:.75rem; --spacing:.25rem;
+    --font-mono:"JetBrains Mono",ui-monospace,monospace;
+    --font-sans:ui-monospace,monospace;
+    --font-serif:serif;   /* la terza famiglia del loro sistema: la uso per le
+                             parti discorsive, cosi' le spiegazioni si staccano
+                             dall'interfaccia senza introdurre un font esterno */
+    --chart-1:#5f8787; --chart-2:#e78a53; --chart-3:#fbcb97;
+    --shadow-sm:0px 1px 4px 0px #0000000d,0px 1px 2px -1px #0000000d;
+    --shadow-md:0px 1px 4px 0px #0000000d,0px 2px 4px -1px #0000000d;
+    --shadow-lg:0px 1px 4px 0px #0000000d,0px 4px 6px -1px #0000000d;
+
+    /* --- i quattro stati ------------------------------------------- */
+    /* rosso e arancione escono dai loro token; verde e blu non esistono
+       nel sistema Datapizza e li aggiungo qui, accordati sul teal --chart-1 */
+    --st-verde:#2f7d5d;      --st-verde-bg:#eaf5f0;
+    --st-blu:#4a6fa5;        --st-blu-bg:#eef2f9;
+    --st-rosso:var(--destructive);   --st-rosso-bg:#fdeeee;
+    --st-arancione:var(--chart-2);   --st-arancione-bg:#fdf2e9;
+"""
+
+CSS = """
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--muted);color:var(--foreground);font-family:var(--font-sans);
+  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1200px;margin:0 auto;padding:calc(var(--spacing)*7)}
+
+/* --- istruzioni ---------------------------------------------------- */
+.hero{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:calc(var(--spacing)*6) calc(var(--spacing)*7);margin-bottom:calc(var(--spacing)*4);
+  box-shadow:var(--shadow-sm)}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--primary);font-weight:600;margin-bottom:calc(var(--spacing)*2)}
+.hero h1{font-size:21px;line-height:1.4;font-weight:600}
+.hero h1 em{font-style:normal;color:var(--primary)}
+.scena{display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--spacing)*4);
+  margin-top:calc(var(--spacing)*4)}
+.scena div{border-left:2px solid var(--border);padding-left:calc(var(--spacing)*3)}
+.scena b{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--muted-foreground);margin-bottom:2px;font-weight:600}
+.scena span{font-size:13px;font-family:var(--font-serif)}
+
+/* --- impianto a due colonne ---------------------------------------- */
+.cols{display:grid;grid-template-columns:1fr 390px;gap:calc(var(--spacing)*4);align-items:start}
+
+/* --- chat ----------------------------------------------------------- */
+.chat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);display:flex;flex-direction:column;height:660px}
+.intestazione{display:flex;align-items:center;gap:calc(var(--spacing)*3);
+  padding:calc(var(--spacing)*4) calc(var(--spacing)*5);border-bottom:1px solid var(--border)}
+.pallino{width:8px;height:8px;border-radius:50%;background:var(--st-verde);flex:none}
+.intestazione b{font-size:13px;font-weight:600}
+.intestazione span{font-size:12px;color:var(--muted-foreground);margin-left:auto;
+  font-family:var(--font-serif)}
+.flusso{flex:1;overflow-y:auto;padding:calc(var(--spacing)*5);
+  display:flex;flex-direction:column;gap:calc(var(--spacing)*4)}
+.msg{max-width:88%}
+.msg.io{align-self:flex-end;background:var(--foreground);color:var(--background);
+  padding:calc(var(--spacing)*3) calc(var(--spacing)*4);border-radius:var(--radius);
+  border-bottom-right-radius:4px;font-size:14px}
+.msg.bot{align-self:flex-start;width:100%}
+.msg.bot .corpo{font-size:15px;line-height:1.8}
+.pie{margin-top:calc(var(--spacing)*3);font-size:12px;color:var(--muted-foreground);
+  display:flex;align-items:center;gap:calc(var(--spacing)*3);flex-wrap:wrap;
+  font-family:var(--font-serif)}
+.pie kbd{font-family:var(--font-mono);font-size:10px;background:var(--muted);
+  border:1px solid var(--border);border-radius:4px;padding:1px 5px}
+.vuoto-chat{margin:auto;text-align:center;color:var(--muted-foreground);font-size:14px;
+  line-height:1.7;padding:calc(var(--spacing)*6);font-family:var(--font-serif)}
+
+/* --- frasi cliccabili ------------------------------------------------ */
+.frase{cursor:pointer;border-bottom:1px solid #e9ebee;padding:1px 0;transition:.12s}
+.frase:hover{background:var(--muted);border-bottom-color:var(--primary)}
+.frase.sel{border-bottom:2px solid;padding-bottom:0}
+.frase.sel[data-c=verde]{background:var(--st-verde-bg);border-color:var(--st-verde)}
+.frase.sel[data-c=blu]{background:var(--st-blu-bg);border-color:var(--st-blu)}
+.frase.sel[data-c=rosso]{background:var(--st-rosso-bg);border-color:var(--st-rosso)}
+.frase.sel[data-c=arancione]{background:var(--st-arancione-bg);border-color:var(--st-arancione)}
+
+/* --- suggerimenti + input -------------------------------------------- */
+.sotto{border-top:1px solid var(--border);padding:calc(var(--spacing)*4) calc(var(--spacing)*5)}
+.chips{display:flex;gap:calc(var(--spacing)*2);flex-wrap:wrap;margin-bottom:calc(var(--spacing)*3)}
+.chip{background:var(--muted);border:1px solid var(--border);border-radius:999px;
+  padding:calc(var(--spacing)*2) calc(var(--spacing)*3);font-family:inherit;font-size:11.5px;
+  color:var(--muted-foreground);cursor:pointer;transition:.15s;max-width:100%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip:hover{border-color:var(--primary);color:var(--foreground);background:var(--card)}
+.riga{display:flex;gap:calc(var(--spacing)*2)}
+.riga input{flex:1;font-family:inherit;font-size:14px;padding:calc(var(--spacing)*3) calc(var(--spacing)*4);
+  border:1px solid var(--border);border-radius:var(--radius);background:var(--background);
+  color:var(--foreground);outline:none;transition:.15s}
+.riga input:focus{border-color:var(--primary)}
+.riga button{background:var(--primary);color:var(--primary-foreground);border:none;
+  border-radius:var(--radius);padding:0 calc(var(--spacing)*5);cursor:pointer;
+  font-family:inherit;font-size:13px;font-weight:600}
+.riga button:hover{filter:brightness(1.05)}
+.puntini span{display:inline-block;width:5px;height:5px;border-radius:50%;
+  background:var(--muted-foreground);margin-right:3px;animation:b 1.2s infinite}
+.puntini span:nth-child(2){animation-delay:.15s}.puntini span:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,60%,100%{opacity:.25}30%{opacity:1}}
+
+/* --- pannello verifica ------------------------------------------------ */
+.pannello{position:sticky;top:calc(var(--spacing)*7)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:calc(var(--spacing)*5);box-shadow:var(--shadow-sm)}
+.titolo-p{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;font-weight:600;
+  color:var(--muted-foreground);margin-bottom:calc(var(--spacing)*4)}
+.attesa{font-size:13.5px;color:var(--muted-foreground);line-height:1.7;
+  font-family:var(--font-serif)}
+.legenda{margin-top:calc(var(--spacing)*4);display:flex;flex-direction:column;gap:6px}
+.lg{display:flex;gap:calc(var(--spacing)*2);align-items:baseline;font-size:11.5px}
+.lg i{width:7px;height:7px;border-radius:50%;flex:none;transform:translateY(-1px)}
+.lg b{font-weight:600;font-style:normal}
+.lg span{color:var(--muted-foreground);font-family:var(--font-serif);font-size:12.5px}
+.badge{display:inline-flex;font-size:10.5px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.07em;padding:3px 9px;border-radius:999px;color:#fff}
+.badge[data-c=verde]{background:var(--st-verde)} .badge[data-c=blu]{background:var(--st-blu)}
+.badge[data-c=rosso]{background:var(--st-rosso)} .badge[data-c=arancione]{background:var(--st-arancione)}
+.conf{font-size:11px;color:var(--muted-foreground);margin-left:auto}
+.testa{display:flex;align-items:center;gap:calc(var(--spacing)*2);margin-bottom:calc(var(--spacing)*4)}
+.citata{font-size:13px;line-height:1.6;padding-left:calc(var(--spacing)*3);
+  border-left:2px solid var(--border);margin-bottom:calc(var(--spacing)*3)}
+.motivo{font-size:13px;color:var(--muted-foreground);margin-bottom:calc(var(--spacing)*4);
+  font-family:var(--font-serif);line-height:1.65}
+.sez{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted-foreground);
+  font-weight:600;margin-bottom:calc(var(--spacing)*2)}
+.prova{font-family:var(--font-mono);font-size:11px;line-height:1.75;background:var(--muted);
+  border-radius:calc(var(--radius)/1.5);padding:calc(var(--spacing)*3);
+  max-height:210px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.prova .ctx{color:#9aa1ab}
+.prova mark{background:var(--st-verde-bg);color:var(--foreground);
+  box-shadow:inset 0 -2px 0 var(--st-verde);padding:1px 0}
+.prova mark[data-c=rosso]{background:var(--st-rosso-bg);box-shadow:inset 0 -2px 0 var(--st-rosso)}
+.fonte{margin-top:calc(var(--spacing)*3);border-top:1px solid var(--border);
+  padding-top:calc(var(--spacing)*3)}
+.fonte-t{font-family:var(--font-serif);font-size:12.5px;line-height:1.55;
+  color:var(--foreground)}
+.fonte-f{font-family:var(--font-mono);font-size:10px;color:var(--muted-foreground);
+  margin-top:4px;word-break:break-all}
+.blocco{margin-bottom:calc(var(--spacing)*4)}
+.nota{font-size:12.5px;border-radius:calc(var(--radius)/1.5);padding:calc(var(--spacing)*3);
+  line-height:1.6;font-family:var(--font-serif)}
+.nota.tempo{background:var(--st-arancione-bg);border:1px solid #f0d4b6}
+.nota.scarto{background:var(--muted);border:1px solid var(--border);color:var(--muted-foreground)}
+.tl{margin-top:calc(var(--spacing)*2);font-family:var(--font-mono);font-size:10.5px}
+.tl div{display:flex;gap:calc(var(--spacing)*2);padding:3px 0;border-left:2px solid var(--st-arancione);
+  padding-left:calc(var(--spacing)*3);margin-left:2px}
+.tl b{color:var(--st-arancione);white-space:nowrap}
+.tl span{color:var(--muted-foreground)}
+.cuciti{font-size:11px;font-family:var(--font-mono);color:var(--muted-foreground);line-height:1.7}
+.cuciti div{padding:2px 0;border-bottom:1px solid var(--border)}
+
+.piede{margin-top:calc(var(--spacing)*5);font-size:12.5px;color:var(--muted-foreground);
+  text-align:center;line-height:1.75;font-family:var(--font-serif);
+  max-width:840px;margin-left:auto;margin-right:auto}
+@media(max-width:980px){.cols{grid-template-columns:1fr}.pannello{position:static}
+  .scena{grid-template-columns:1fr}.chat{height:auto;min-height:520px}}
+"""
+
+JS = """
+const CASI=DATI.casi; let sel=null, casoSel=null, inCorso=false;
+const $=s=>document.querySelector(s);
+const esc=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const norm=t=>t.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'');
+const VUOTE=new Set(['il','lo','la','i','gli','le','un','una','di','a','da','in','con','su',
+ 'per','del','della','dei','delle','che','e','ed','o','ma','se','non','si','sono','come',
+ 'qual','quale','quanto','quanti','chi','cosa','ha','hanno','al','alla','dell','all','e2']);
+const parole=t=>norm(t).split(/[^a-z0-9]+/).filter(w=>w.length>2&&!VUOTE.has(w));
+
+// Match a parole con la domanda precalcolata piu' vicina. E' una demo statica:
+// meglio ammettere di non avere la risposta che costruirne una finta.
+function cerca(q){
+  const pq=parole(q); if(!pq.length) return null;
+  let best=null,bs=0;
+  CASI.forEach((c,i)=>{
+    const pc=new Set(parole(c.domanda));
+    const comuni=pq.filter(w=>pc.has(w)).length;
+    const s=comuni/Math.max(pq.length,1);
+    if(s>bs){bs=s;best=i}
+  });
+  return bs>=0.45?best:null;
+}
+
+function scrolla(){const f=$('#flusso');f.scrollTop=f.scrollHeight}
+
+function bolla(testo){
+  const d=document.createElement('div');
+  d.className='msg io'; d.textContent=testo;
+  $('#flusso').appendChild(d); scrolla();
+}
+
+function scrivendo(){
+  const d=document.createElement('div');
+  d.className='msg bot'; d.id='typing';
+  d.innerHTML='<div class="puntini"><span></span><span></span><span></span></div>';
+  $('#flusso').appendChild(d); scrolla();
+}
+
+function rispostaBot(i){
+  document.getElementById('typing')?.remove();
+  const c=CASI[i];
+  let resto=c.risposta, out=[];
+  c.affermazioni.forEach((a,k)=>{
+    const idx=resto.indexOf(a.testo); if(idx<0) return;
+    out.push(esc(resto.slice(0,idx)));
+    out.push(`<span class="frase" data-c="${a.colore}" onclick="apri(${i},${k},this)">${esc(a.testo)}</span>`);
+    resto=resto.slice(idx+a.testo.length);
+  });
+  out.push(esc(resto));
+  const d=document.createElement('div');
+  d.className='msg bot';
+  d.innerHTML=`<div class="corpo">${out.join('')}</div>
+    <div class="pie"><kbd>clicca una frase</kbd> per vedere su cosa poggia
+    · ${c.affermazioni.length} affermazioni · ${c.passaggi_recuperati.length} passaggi recuperati</div>`;
+  $('#flusso').appendChild(d); scrolla();
+}
+
+function nonSo(){
+  document.getElementById('typing')?.remove();
+  const d=document.createElement('div');
+  d.className='msg bot';
+  d.innerHTML=`<div class="corpo" style="color:var(--muted-foreground);font-size:14px">
+    Questa è una demo statica: le risposte precalcolate sono quattro, e per questa
+    domanda non ne ho una. Nella versione collegata all'API la domanda partirebbe
+    davvero verso l'archivio.<br><br>Prova con uno dei suggerimenti qui sotto.</div>`;
+  $('#flusso').appendChild(d); scrolla();
+}
+
+function invia(testo){
+  if(inCorso) return;
+  const q=(testo??$('#campo').value).trim(); if(!q) return;
+  $('#campo').value=''; $('#vuotoChat')?.remove();
+  inCorso=true; bolla(q); scrivendo();
+  const i=cerca(q);
+  setTimeout(()=>{ i===null?nonSo():rispostaBot(i); inCorso=false; }, 620);
+}
+
+function apri(ci,ai,el){
+  document.querySelectorAll('.frase').forEach(f=>f.classList.remove('sel'));
+  el.classList.add('sel'); casoSel=ci; sel=ai; pannello();
+}
+
+function pannello(){
+  const p=$('#pannello');
+  if(sel===null){
+    p.innerHTML=`<div class="card"><div class="titolo-p">Verifica</div>
+      <div class="attesa">Ogni risposta viene smontata frase per frase e confrontata
+      con l'archivio da un secondo modello, che non sa come è stata prodotta.
+      Clicca una frase per vedere il verdetto e la prova.</div>
+      <div class="legenda">
+        <div class="lg"><i style="background:var(--st-verde)"></i><b>Ripescato</b>
+          <span>— un passaggio lo dice alla lettera</span></div>
+        <div class="lg"><i style="background:var(--st-blu)"></i><b>Inferito</b>
+          <span>— regge, ma cucito da più fonti</span></div>
+        <div class="lg"><i style="background:var(--st-rosso)"></i><b>Non supportato</b>
+          <span>— l'archivio dice altro</span></div>
+        <div class="lg"><i style="background:var(--st-arancione)"></i><b>Fuori corpus</b>
+          <span>— l'archivio non ne parla</span></div>
+      </div></div>`;
+    return;
+  }
+  const a=CASI[casoSel].affermazioni[sel];
+  let h=`<div class="card"><div class="testa">
+    <span class="badge" data-c="${a.colore}">${a.stato.replace('_',' ')}</span>
+    <span class="conf">confidenza ${a.confidenza}</span></div>
+    <div class="citata">${esc(a.testo)}</div>
+    <div class="motivo">${esc(a.motivo)}</div>`;
+  if(a.ancora){
+    const k=a.ancora.contesto||{};
+    h+=`<div class="blocco"><div class="sez">Il passaggio, nel suo contesto</div>
+      <div class="prova"><span class="ctx">${esc(k.prima||'')}</span><mark data-c="${a.colore}">${esc(k.prova||a.ancora.citazione)}</mark><span class="ctx">${esc(k.dopo||'')}</span></div>
+      <div class="fonte"><div class="sez">Fonte</div>
+        <div class="fonte-t">${esc(a.ancora.dove)}</div>
+        <div class="fonte-f">${esc(a.ancora.file)} · caratteri ${a.ancora.inizio}–${a.ancora.fine}</div>
+      </div></div>`;
+  }
+  if(a.conflitto){
+    h+=`<div class="blocco"><div class="nota tempo"><b>L'archivio è cambiato nel tempo.</b><br>
+      ${esc(a.conflitto.nota)}<div class="sez" style="margin-top:10px">Le due fonti in conflitto</div><div class="tl">
+      <div><b>${esc(a.conflitto.prima.quando||'')}</b><span>${esc(a.conflitto.prima.dove||'')}</span></div>
+      <div><b>${esc(a.conflitto.dopo.quando||'')}</b><span>${esc(a.conflitto.dopo.dove||'')}</span></div>
+      </div></div></div>`;
+  }
+  if(a.ancora_scartata){
+    h+=`<div class="blocco"><div class="nota scarto"><b>Una prova è stata scartata.</b><br>
+      ${esc(a.ancora_scartata)}</div></div>`;
+  }
+  if(!a.ancora&&a.passaggi&&a.passaggi.length){
+    h+=`<div class="blocco"><div class="sez">Le ${a.passaggi.length} fonti da cui è cucita</div>
+      <div class="cuciti">${a.passaggi.map(x=>`<div>${esc(x.citation)}</div>`).join('')}</div></div>`;
+  }
+  p.innerHTML=h+'</div>';
+}
+
+// I suggerimenti si legano con un listener, non con onclick inline: la domanda
+// contiene apostrofi e virgolette che dentro un attributo HTML spezzano tutto.
+$('#chips').innerHTML=CASI.map((c,i)=>
+  `<button class="chip" data-i="${i}">${esc(c.domanda)}</button>`).join('');
+document.querySelectorAll('.chip').forEach(b=>
+  b.addEventListener('click',()=>invia(CASI[+b.dataset.i].domanda)));
+$('#campo').addEventListener('keydown',e=>{if(e.key==='Enter')invia()});
+pannello();
+"""
+
+
+def main() -> int:
+    dati = json.loads(DATI.read_text(encoding="utf-8"))
+    info = dati["indice"]
+    html = f"""<!doctype html>
+<html lang="it"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prometeo Cup — chiedi all'archivio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>:root{{{TOKENS}}}{CSS}</style></head>
+<body><div class="wrap">
+
+<div class="hero">
+  <div class="eyebrow">Prometeo Cup · archivio di progetto</div>
+  <h1>Le citazioni ti dicono da dove viene una risposta.
+      Non ti dicono <em>se quella frase regge davvero</em>.</h1>
+  <div class="scena">
+    <div><b>Cos'è</b><span>Sette mesi di email, riunioni, telefonate e chat sull'organizzazione
+      di una partita di calcio fra robot: {info['chunks']} frammenti indicizzati.</span></div>
+    <div><b>Cosa puoi fare</b><span>Chiedi quello che vuoi all'archivio, come faresti
+      con qualsiasi assistente.</span></div>
+    <div><b>La differenza</b><span>Clicca una frase della risposta: il sistema dice se
+      l'archivio la sostiene, la smentisce, o non ne parla.</span></div>
+  </div>
+</div>
+
+<div class="cols">
+  <div class="chat">
+    <div class="intestazione"><span class="pallino"></span>
+      <b>Archivio Prometeo Cup</b>
+      <span>{info['chunks']} frammenti · 6 canali</span></div>
+    <div class="flusso" id="flusso">
+      <div class="vuoto-chat" id="vuotoChat">
+        Chiedi qualcosa sull'evento.<br>Se non sai da dove partire, usa un suggerimento.
+      </div>
+    </div>
+    <div class="sotto">
+      <div class="chips" id="chips"></div>
+      <div class="riga">
+        <input id="campo" autocomplete="off" placeholder="Scrivi una domanda sull'archivio…">
+        <button onclick="invia()">Invia</button>
+      </div>
+    </div>
+  </div>
+  <div class="pannello" id="pannello"></div>
+</div>
+
+<div class="piede">
+  Risposte generate con Claude sui {info['chunks']} frammenti indicizzati con
+  {info['model']}, verificate frase per frase da un secondo modello che non sa come
+  sono state prodotte. Nessun contenuto è scritto a mano: verdetti, citazioni e offset
+  vengono da esecuzioni reali.<br>
+  Demo statica: le risposte precalcolate sono quattro. Lo stato arancione non compare in
+  nessuna delle quattro — quando l'archivio tace, chi risponde lo dichiara invece di
+  riempire il vuoto.
+</div>
+
+</div>
+<script>const DATI={json.dumps(dati, ensure_ascii=False)};\n{JS}</script>
+</body></html>"""
+    USCITA.write_text(html, encoding="utf-8")
+    print(f"scritto {USCITA} ({USCITA.stat().st_size / 1024:.0f} KB)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

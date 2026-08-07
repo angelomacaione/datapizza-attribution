@@ -1,0 +1,633 @@
+{
+ "indice": {
+  "chunks": 224,
+  "model": "intfloat/multilingual-e5-large",
+  "embedder_kind": "e5",
+  "dimensions": 1024,
+  "collection": "prometeo",
+  "channels": [
+   "colleague-chats",
+   "email-threads",
+   "llm-chats",
+   "phone-calls",
+   "remote-meetings",
+   "web-searches"
+  ]
+ },
+ "casi": [
+  {
+   "domanda": "Quanto costa il noleggio del K1 demo da Génération Robots?",
+   "risposta": "Il noleggio del K1 demo da Génération Robots costa 4.200 euro più IVA, con una cauzione pari al 50% del valore. Il noleggio copre un periodo di tre settimane.",
+   "affermazioni": [
+    {
+     "testo": "Il noleggio del K1 demo da Génération Robots costa 4.200 euro più IVA, con una cauzione pari al 50% del valore.",
+     "stato": "ripescato",
+     "colore": "verde",
+     "confidenza": 1.0,
+     "motivo": "Il passaggio 1 riporta testualmente che Génération Robots offre il K1 demo a rental per 4.200 euro più IVA con cauzione al 50%, confermando integralmente l'affermazione.",
+     "passaggi": [
+      {
+       "citation": "email-threads > Thread #28 — \"Hardware status post-repair + lista definitiva robot per DR2\" > Valeria De Santis 23 ott 11:22",
+       "register": "formale",
+       "chunk_id": "email-threads:f2721ad4"
+      }
+     ],
+     "ancora_scartata": "",
+     "citazione_fantasma": "",
+     "ancora": {
+      "citazione": "Hanno 1 K1 demo disponibile a rental per 3 settimane, €4.200 + IVA + cauzione 50%.",
+      "dove": "email-threads > Thread #28 — \"Hardware status post-repair + lista definitiva robot per DR2\" > Valeria De Santis 23 ott 11:22",
+      "file": "email-threads.md",
+      "inizio": 2453,
+      "fine": 2535,
+      "contesto": {
+       "prima": "\n**[23 ott, 11:22] Valeria De Santis → Luca, Federica**\n> Ho contattato Génération Robots (FR)",
+       "prova": ". Hanno 1 K1 demo disponibile a rental per 3 settimane, €4.200 + IVA + cauzione 50",
+       "dopo": "%. Se lo vogliamo va deciso entro venerdì 24.\n\n**[24 ott, 16:47] Federica Mazzarese → thread (decisione)**\n> OK al rental del K1 demo da GR. Valeria, procedi. Marco Bellini informato via DM."
+      }
+     }
+    },
+    {
+     "testo": "Il noleggio copre un periodo di tre settimane.",
+     "stato": "ripescato",
+     "colore": "verde",
+     "confidenza": 1.0,
+     "motivo": "Il passaggio 1 afferma esplicitamente che il K1 demo disponibile a noleggio copre un periodo di 3 settimane.",
+     "passaggi": [
+      {
+       "citation": "email-threads > Thread #28 — \"Hardware status post-repair + lista definitiva robot per DR2\" > Valeria De Santis 23 ott 11:22",
+       "register": "formale",
+       "chunk_id": "email-threads:f2721ad4"
+      }
+     ],
+     "ancora_scartata": "",
+     "citazione_fantasma": "",
+     "ancora": {
+      "citazione": "Hanno 1 K1 demo disponibile a rental per 3 settimane",
+      "dove": "email-threads > Thread #28 — \"Hardware status post-repair + lista definitiva robot per DR2\" > Valeria De Santis 23 ott 11:22",
+      "file": "email-threads.md",
+      "inizio": 2453,
+      "fine": 2505,
+      "contesto": {
+       "prima": "\n**[23 ott, 11:22] Valeria De Santis → Luca, Federica**\n> Ho contattato Génération Robots (FR)",
+       "prova": ". Hanno 1 K1 demo disponibile a rental per 3 settima",
+       "dopo": "ne, €4.200 + IVA + cauzione 50%. Se lo vogliamo va deciso entro venerdì 24.\n\n**[24 ott, 16:47] Federica Mazzarese → thread (decisione)**\n> OK al rental del K1 demo da GR. Valeria, procedi. Marco Bellini informato via DM."
+      }
+     }
+    }
+   ],
+   "passaggi_recuperati": [
+    {
+     "citazione": "email-threads > Thread #28 — \"Hardware status post-repair + lista definitiva robot per DR2\" > Valeria De Santis 23 ott 11:22",
+     "quando": "2026-10-23T11:22",
+     "registro": "formale",
+     "come": "both (denso #1, lessicale #1)",
+     "testo": "Ho contattato Génération Robots (FR). Hanno 1 K1 demo disponibile a rental per 3 settimane, €4.200 + IVA + cauzione 50%. Se lo vogliamo va deciso entro venerdì 24."
+    },
+    {
+     "citazione": "email-threads > Thread #28 — \"Hardware status post-repair + lista definitiva robot per DR2\" > Federica Mazzarese 24 ott 16:47",
+     "quando": "2026-10-24T16:47",
+     "registro": "formale",
+     "come": "both (denso #2, lessicale #2)",
+     "testo": "OK al rental del K1 demo da GR. Valeria, procedi. Marco Bellini informato via DM.\nCopertura operativa confermata: 10 K1 + 1 K1 spare + 3 NAO backup + 2 NAO drill. Siamo good per DR2.\n\n---"
+    },
+    {
+     "citazione": "remote-meetings > 7. Robot Squad — ultima sync prima del walkthrough — mercoledì 18 novembre 2026, 10:00 > Stato finale > 18 novembre 2026, 10:00",
+     "quando": "2026-11-18T10:00",
+     "registro": "formale",
+     "come": "both (denso #4, lessicale #3)",
+     "testo": "| Robot | Status | Note |\n|---|---|---|\n| K1-01 | 🟢 Pronto | Calibrato in laboratorio |\n| K1-02 | 🟢 Pronto | |\n| K1-03 | 🟢 Pronto | Rientrato da repair 27/10 |\n| K1-04 | 🟢 Pronto | |\n| K1-05 | 🟢 Pronto | |\n| K1-06 | 🟢 Pronto | |\n| K1-07 | 🟡 Osservazione | Giunto ginocchio dx con gioco 0.3mm, sotto tolleranza ma da monitorare |\n| K1-08 | 🟢 Pronto | Rientrato 30/10 |\n| K1-09 | 🟢 Pronto | Rental Génération Robots, consegnato 5/11 |\n| K1-10 | 🟢 Pronto | |\n| K1-spare | 🟢 Pronto | Coperto da uno dei 10 in rotazione |\n| NAO-01 a 03 | 🟢 Pronto | Backup, non schedulati in scaletta |"
+    },
+    {
+     "citazione": "email-threads > Thread #28 — \"Hardware status post-repair + lista definitiva robot per DR2\" > Alessandro Conti 22 ott 14:08",
+     "quando": "2026-10-22T14:08",
+     "registro": "formale",
+     "come": "both (denso #3, lessicale #5)",
+     "testo": "Per produzione: 10 robot in campo + 1 spare è il minimo tecnico. Se perdiamo ancora anche solo 1 K1 prima del 21/11 abbiamo problema narrativo grosso. Si può chiedere a Booster uno shipment espresso spare direttamente da magazzino EU?"
+    },
+    {
+     "citazione": "llm-chats > 🤖 Luca Ferraresi — Robotics Program Lead > Sessione 1 — Claude, 29 ottobre 2026, 08:11 > Luca Ferraresi 29 ottobre 2026, 08:11",
+     "quando": "2026-10-29T08:11",
+     "registro": "semi-formale",
+     "come": "both (denso #5, lessicale #7)",
+     "testo": "**Contesto**: mattina di DR2. Luca sta caricando sul muletto hardware backup.\n\n**Luca**: Ho un K1 autonomo che in DR2 deve eseguire 3 match da 20 min ciascuno. Temperatura ambiente 19°C padiglione fieristico. Motori sintered NdFeB PMSM, profilo uso 60% walking + 20% running + 20% standing. Dammi stima realistica battery degradation e protocollo swap ottimale per garantire continuità senza downtime > 15 secondi.\n\n*[Risposta LLM tecnica con calcolo approssimativo cicli e raccomandazione di pre-heating batterie spare.]*\n\n**Luca**: Mi hai convinto sul pre-heating. Domanda secondaria: se passiamo a WiFi 6E 5GHz esclusivo come consigliato, la latenza end-to-end robot→referee box scende a quanto? Target 80ms.\n\n*[LLM dà stima e propone 3 fattori di rischio che potrebbero far salire la latenza.]*\n\n**Luca**: Il terzo fattore (interferenza cross-channel da AP vicini) è esattamente quello che abbiamo nel padiglione 7 accanto. Bingo. Attivo discussione con Stefano.\n\n---"
+    },
+    {
+     "citazione": "email-threads > Thread #28 — \"Hardware status post-repair + lista definitiva robot per DR2\" > Vincenzo Suriani 22 ott 10:41",
+     "quando": "2026-10-22T10:41",
+     "registro": "formale",
+     "come": "both (denso #12, lessicale #4)",
+     "testo": "Confermo disponibilità NAO. Due richieste:\n1. Trasporto a/r da Sapienza coperto da voi (già quotato €680 con assicurazione).\n2. Codice sorgente del nostro porting K1→NAO rimane con noi (già nel MoU, solo per chiarezza)."
+    },
+    {
+     "citazione": "email-threads > Thread #28 — \"Hardware status post-repair + lista definitiva robot per DR2\" > Sintesi",
+     "quando": null,
+     "registro": "formale",
+     "come": "both (denso #8, lessicale #14)",
+     "testo": "**Aperto**: 22 ott 2026, 09:14 · **Messaggi**: 14 · **Chiusura**: 24 ott 17:02\n**Partecipanti**: Luca Ferraresi, Vincenzo Suriani, Federica Mazzarese, Valeria De Santis, Alessandro Conti\n\n**Sintesi**: conferma rientro dei 2 K1 riparati, uno con ritardo di 4 giorni via DHL Express Shanghai. Confermato backup con 3 NAO prestati da SPQR. Si allinea la dotazione per DR2 a 11 robot (10 in campo + 1 spare), accettando di scendere da 12 previsti.\n\n### Messaggi chiave"
+    },
+    {
+     "citazione": "phone-calls > ☎️ Federica Mazzarese → Marco Bellini (sponsor) · 23 ott 2026, 19:42 > Federica Mazzarese 23 ott 19:42",
+     "quando": "2026-10-23T19:42",
+     "registro": "semi-formale",
+     "come": "both (denso #20, lessicale #8)",
+     "testo": "⏱️ 14 min\n📍 Dopo la finestra di spesa approvata per repair K1, aggiornamento settimanale informale. Federica chiama da macchina rientrando a casa.\n🗒️\n- Rassicurazione su hardware rientrato\n- Previsione delta budget luci (non ancora conosciuto)\n- Federica chiede \"di fidarsi del processo anche se nei prossimi 10 giorni sembrerà caotico\"\n- Bellini: \"Se mi chiami tu, mi fido. Chiamami anche solo per dirmi che non serve che mi chiami.\"\n\n---"
+    }
+   ]
+  },
+  {
+   "domanda": "Chi ha in mano il trigger dell'e-stop il giorno dell'evento?",
+   "risposta": "Il giorno dell'evento il trigger dell'e-stop di livello 3 è in mano a Francesca Trombetta, Safety Officer assunta con contratto specifico per l'occasione. Trombetta ha la responsabilità del dispositivo radio dedicato a 433 MHz dalle ore 10:00, momento del boot-up dei robot, fino alle ore 18:00, al termine del ritiro completo. Nessun altro membro del team ha accesso a questo trigger. Barbara Russo, che normalmente ricopre il ruolo di Safety Officer in Booster Robotics, ha coordinato l'assegnazione ma non gestisce direttamente il dispositivo il 21 novembre.",
+   "affermazioni": [
+    {
+     "testo": "Il giorno dell'evento il trigger dell'e-stop di livello 3 è in mano a Francesca Trombetta, Safety Officer assunta con contratto specifico per l'occasione.",
+     "stato": "non_supportato",
+     "colore": "rosso",
+     "confidenza": 0.95,
+     "motivo": "L'affermazione attribuisce il trigger a Francesca Trombetta il giorno dell'evento, ma il passaggio 2 del 28 ottobre afferma esplicitamente che Barbara come Safety Officer ha il trigger del livello 3. Il passaggio 1 del 12 novembre conferma che Trombetta avrà il trigger, ma rappresenta un cambio rispetto alla configurazione precedente dove Barbara lo aveva.",
+     "passaggi": [
+      {
+       "citation": "phone-calls > ☎️ Barbara Russo → Francesca Trombetta (Safety Officer contratto) · 12 nov 2026, 15:20 > Barbara Russo 12 nov 15:20",
+       "register": "semi-formale",
+       "chunk_id": "phone-calls:ea5abb21"
+      },
+      {
+       "citation": "remote-meetings > 2. DR2 — Briefing tecnico pre-dry run — mercoledì 28 ottobre 2026, 14:00 > Note chiave · E-stop > Stefano + Barbara 28 ottobre 2026, 14:00",
+       "register": "formale",
+       "chunk_id": "remote-meetings:59768af6"
+      }
+     ],
+     "ancora_scartata": "Trombetta avrà il trigger dell'e-stop livello 3 (radio dedicata) — Il frammento attribuisce il trigger a Trombetta, confermando l'affermazione invece di contraddirla",
+     "citazione_fantasma": "",
+     "conflitto": {
+      "nota": "Il trigger dell'e-stop livello 3 è stato riassegnato da Barbara Russo a Francesca Trombetta, assunta con contratto specifico per l'evento, come confermato nella telefonata del 12 novembre.",
+      "prima": {
+       "quando": "2026-10-28T14:00",
+       "dove": "remote-meetings > 2. DR2 — Briefing tecnico pre-dry run — mercoledì 28 ottobre 2026, 14:00 > Note chiave · E-stop > Stefano + Barbara 28 ottobre 2026, 14:00",
+       "file": "remote-meetings.md",
+       "start": 4178,
+       "end": 4406,
+       "registro": "formale",
+       "estratto": "**E-stop (Stefano + Barbara)**\n- Sistema a 3 livelli: (1) soft via SDK, (2) hard via referee box, (3) radio dedicata 433 MHz (nuovo post-DR1)\n- Barbara come Safety Officer: ha il trigger del livello 3 accanto a sé. Nessu"
+      },
+      "dopo": {
+       "quando": "2026-11-12T15:20",
+       "dove": "phone-calls > ☎️ Barbara Russo → Francesca Trombetta (Safety Officer contratto) · 12 nov 2026, 15:20 > Barbara Russo 12 nov 15:20",
+       "file": "phone-calls.md",
+       "start": 5534,
+       "end": 5920,
+       "registro": "semi-formale",
+       "estratto": "⏱️ 11 min\n📍 Briefing contratto finale.\n🗒️\n- Trombetta avrà il trigger dell'e-stop livello 3 (radio dedicata)\n- Copertura: dal boot-up robot (ore 10:00) al ritiro completo (ore 18:00)\n- Nessun altro ruolo il giorno\n- Brie"
+      }
+     }
+    },
+    {
+     "testo": "Trombetta ha la responsabilità del dispositivo radio dedicato a 433 MHz dalle ore 10:00, momento del boot-up dei robot, fino alle ore 18:00, al termine del ritiro completo.",
+     "stato": "non_supportato",
+     "colore": "rosso",
+     "confidenza": 0.95,
+     "motivo": "L'affermazione indica Trombetta come responsabile del dispositivo radio 433 MHz, ma il passaggio [2] del 28 ottobre stabilisce che Barbara Russo, come Safety Officer, ha il trigger del livello 3 e nessun altro. Il passaggio [1] del 12 novembre indica che Trombetta avrà il trigger, ma questo rappresenta un cambio di assegnazione rispetto alla decisione precedente documentata in [2].",
+     "passaggi": [
+      {
+       "citation": "phone-calls > ☎️ Barbara Russo → Francesca Trombetta (Safety Officer contratto) · 12 nov 2026, 15:20 > Barbara Russo 12 nov 15:20",
+       "register": "semi-formale",
+       "chunk_id": "phone-calls:ea5abb21"
+      },
+      {
+       "citation": "remote-meetings > 2. DR2 — Briefing tecnico pre-dry run — mercoledì 28 ottobre 2026, 14:00 > Note chiave · E-stop > Stefano + Barbara 28 ottobre 2026, 14:00",
+       "register": "formale",
+       "chunk_id": "remote-meetings:59768af6"
+      }
+     ],
+     "ancora_scartata": "Barbara come Safety Officer: ha il trigger del livello 3 accanto a sé. Nessun altro. — Il frammento parla del trigger del livello 3 di e-stop affidato a Barbara, non della responsabilita' del dispositivo radio a 433 MHz affidato a Trombetta",
+     "citazione_fantasma": "",
+     "conflitto": {
+      "nota": "La responsabilità del trigger radio 433 MHz (e-stop livello 3) è stata riassegnata da Barbara Russo a Francesca Trombetta tra il 28 ottobre e il 12 novembre 2026.",
+      "prima": {
+       "quando": "2026-10-28T14:00",
+       "dove": "remote-meetings > 2. DR2 — Briefing tecnico pre-dry run — mercoledì 28 ottobre 2026, 14:00 > Note chiave · E-stop > Stefano + Barbara 28 ottobre 2026, 14:00",
+       "file": "remote-meetings.md",
+       "start": 4178,
+       "end": 4406,
+       "registro": "formale",
+       "estratto": "**E-stop (Stefano + Barbara)**\n- Sistema a 3 livelli: (1) soft via SDK, (2) hard via referee box, (3) radio dedicata 433 MHz (nuovo post-DR1)\n- Barbara come Safety Officer: ha il trigger del livello 3 accanto a sé. Nessu"
+      },
+      "dopo": {
+       "quando": "2026-11-12T15:20",
+       "dove": "phone-calls > ☎️ Barbara Russo → Francesca Trombetta (Safety Officer contratto) · 12 nov 2026, 15:20 > Barbara Russo 12 nov 15:20",
+       "file": "phone-calls.md",
+       "start": 5534,
+       "end": 5920,
+       "registro": "semi-formale",
+       "estratto": "⏱️ 11 min\n📍 Briefing contratto finale.\n🗒️\n- Trombetta avrà il trigger dell'e-stop livello 3 (radio dedicata)\n- Copertura: dal boot-up robot (ore 10:00) al ritiro completo (ore 18:00)\n- Nessun altro ruolo il giorno\n- Brie"
+      }
+     }
+    },
+    {
+     "testo": "Nessun altro membro del team ha accesso a questo trigger.",
+     "stato": "non_supportato",
+     "colore": "rosso",
+     "confidenza": 1.0,
+     "motivo": "L'affermazione sostiene che nessun altro membro del team ha accesso al trigger, ma il passaggio 1 documenta esplicitamente che il 12 novembre il trigger viene trasferito a Francesca Trombetta, Safety Officer a contratto, che diventa quindi un altro membro con accesso a questo trigger.",
+     "passaggi": [
+      {
+       "citation": "phone-calls > ☎️ Barbara Russo → Francesca Trombetta (Safety Officer contratto) · 12 nov 2026, 15:20 > Barbara Russo 12 nov 15:20",
+       "register": "semi-formale",
+       "chunk_id": "phone-calls:ea5abb21"
+      }
+     ],
+     "ancora_scartata": "",
+     "citazione_fantasma": "",
+     "ancora": {
+      "citazione": "Trombetta avrà il trigger dell'e-stop livello 3 (radio dedicata)",
+      "dove": "phone-calls > ☎️ Barbara Russo → Francesca Trombetta (Safety Officer contratto) · 12 nov 2026, 15:20 > Barbara Russo 12 nov 15:20",
+      "file": "phone-calls.md",
+      "inizio": 5578,
+      "fine": 5642,
+      "contesto": {
+       "prima": "- Si decide: patch notturna, tag `hsl-2026-final-v2.1`. Email al team la mattina.\n\n---\n\n## ☎️ Barbara Russo → Francesca Trombetta (Safety Officer contratto) · 12 nov 2026, 15:20\n⏱️ 11 min\n📍 Briefing contratto finale.\n🗒️\n- ",
+       "prova": "Trombetta avrà il trigger dell'e-stop livello 3 (radio dedicata)",
+       "dopo": "\n- Copertura: dal boot-up robot (ore 10:00) al ritiro completo (ore 18:00)\n- Nessun altro ruolo il giorno\n- Briefing di sicurezza specifico con Luca e Stefano in walkthrough 20/11"
+      }
+     },
+     "conflitto": {
+      "nota": "Il trigger del livello 3 e-stop viene trasferito da Barbara Russo (Safety Officer interno, 28 ottobre) a Francesca Trombetta (Safety Officer a contratto, 12 novembre) per l'evento finale.",
+      "prima": {
+       "quando": "2026-10-28T14:00",
+       "dove": "remote-meetings > 2. DR2 — Briefing tecnico pre-dry run — mercoledì 28 ottobre 2026, 14:00 > Note chiave · E-stop > Stefano + Barbara 28 ottobre 2026, 14:00",
+       "file": "remote-meetings.md",
+       "start": 4178,
+       "end": 4406,
+       "registro": "formale",
+       "estratto": "**E-stop (Stefano + Barbara)**\n- Sistema a 3 livelli: (1) soft via SDK, (2) hard via referee box, (3) radio dedicata 433 MHz (nuovo post-DR1)\n- Barbara come Safety Officer: ha il trigger del livello 3 accanto a sé. Nessu"
+      },
+      "dopo": {
+       "quando": "2026-11-12T15:20",
+       "dove": "phone-calls > ☎️ Barbara Russo → Francesca Trombetta (Safety Officer contratto) · 12 nov 2026, 15:20 > Barbara Russo 12 nov 15:20",
+       "file": "phone-calls.md",
+       "start": 5534,
+       "end": 5920,
+       "registro": "semi-formale",
+       "estratto": "⏱️ 11 min\n📍 Briefing contratto finale.\n🗒️\n- Trombetta avrà il trigger dell'e-stop livello 3 (radio dedicata)\n- Copertura: dal boot-up robot (ore 10:00) al ritiro completo (ore 18:00)\n- Nessun altro ruolo il giorno\n- Brie"
+      }
+     }
+    },
+    {
+     "testo": "Barbara Russo, che normalmente ricopre il ruolo di Safety Officer in Booster Robotics, ha coordinato l'assegnazione ma non gestisce direttamente il dispositivo il 21 novembre.",
+     "stato": "inferito",
+     "colore": "blu",
+     "confidenza": 0.95,
+     "motivo": "Il passaggio 1 documenta che Barbara Russo coordina l'assegnazione del ruolo di Safety Officer a Francesca Trombetta per il 21 novembre, specificando che Trombetta avrà il trigger dell'e-stop. Il passaggio 2 conferma che Barbara normalmente ricopre il ruolo di Safety Officer ('Barbara come Safety Officer'). L'affermazione è quindi supportata: Barbara coordina l'assegnazione ma il dispositivo viene gestito da Trombetta il 21 novembre.",
+     "passaggi": [
+      {
+       "citation": "phone-calls > ☎️ Barbara Russo → Francesca Trombetta (Safety Officer contratto) · 12 nov 2026, 15:20 > Barbara Russo 12 nov 15:20",
+       "register": "semi-formale",
+       "chunk_id": "phone-calls:ea5abb21"
+      },
+      {
+       "citation": "remote-meetings > 2. DR2 — Briefing tecnico pre-dry run — mercoledì 28 ottobre 2026, 14:00 > Note chiave · E-stop > Stefano + Barbara 28 ottobre 2026, 14:00",
+       "register": "formale",
+       "chunk_id": "remote-meetings:59768af6"
+      }
+     ],
+     "ancora_scartata": "Trombetta avrà il trigger dell'e-stop livello 3 (radio dedicata) — Il frammento attesta solo che Trombetta avra' il trigger, ma non dimostra che Barbara Russo abbia coordinato l'assegnazione ne' che non gestisca direttamente il dispositivo il 21 novembre",
+     "citazione_fantasma": ""
+    }
+   ],
+   "passaggi_recuperati": [
+    {
+     "citazione": "phone-calls > ☎️ Barbara Russo → Francesca Trombetta (Safety Officer contratto) · 12 nov 2026, 15:20 > Barbara Russo 12 nov 15:20",
+     "quando": "2026-11-12T15:20",
+     "registro": "semi-formale",
+     "come": "both (denso #2, lessicale #1)",
+     "testo": "⏱️ 11 min\n📍 Briefing contratto finale.\n🗒️\n- Trombetta avrà il trigger dell'e-stop livello 3 (radio dedicata)\n- Copertura: dal boot-up robot (ore 10:00) al ritiro completo (ore 18:00)\n- Nessun altro ruolo il giorno\n- Briefing di sicurezza specifico con Luca e Stefano in walkthrough 20/11\n- Trombetta: \"È la prima volta che vedo robot autonomi in un evento in Italia. Sono onorata.\"\n\n---"
+    },
+    {
+     "citazione": "remote-meetings > 2. DR2 — Briefing tecnico pre-dry run — mercoledì 28 ottobre 2026, 14:00 > Note chiave · E-stop > Stefano + Barbara 28 ottobre 2026, 14:00",
+     "quando": "2026-10-28T14:00",
+     "registro": "formale",
+     "come": "both (denso #1, lessicale #5)",
+     "testo": "**E-stop (Stefano + Barbara)**\n- Sistema a 3 livelli: (1) soft via SDK, (2) hard via referee box, (3) radio dedicata 433 MHz (nuovo post-DR1)\n- Barbara come Safety Officer: ha il trigger del livello 3 accanto a sé. Nessun altro."
+    },
+    {
+     "citazione": "remote-meetings > 2. DR2 — Briefing tecnico pre-dry run — mercoledì 28 ottobre 2026, 14:00 > Note chiave · Domanda di Andrea Moro > broadcast 28 ottobre 2026, 14:00",
+     "quando": "2026-10-28T14:00",
+     "registro": "formale",
+     "come": "both (denso #3, lessicale #17)",
+     "testo": "**Domanda di Andrea Moro (broadcast)**\n\"Se chiamiamo e-stop, il broadcast cosa fa?\"\n\nDecisione: cartello grafico \"⚙️ Tecnical pause — il gioco riprende a breve\" + voce Bertagnolli che riempie. Pre-registrata una clip di Vincenzo che spiega il comportamento dei robot (fallback contenuto)."
+    },
+    {
+     "citazione": "llm-chats > 🏥 Barbara Russo — Safety & Medical Lead > Sessione 1 — Claude, 11 novembre 2026, 20:30 > [annotazione] 11 novembre 2026, 20:30",
+     "quando": "2026-11-11T20:30",
+     "registro": "semi-formale",
+     "come": "solo lessicale (#2)",
+     "testo": "**Nota**: questa checklist diventa il documento più stampato dell'evento, appeso a 3 postazioni fisiche il giorno.\n\n---"
+    },
+    {
+     "citazione": "colleague-chats > Pattern del canale chat",
+     "quando": null,
+     "registro": "informale",
+     "come": "solo lessicale (#3)",
+     "testo": "6. **Il tono si fa più dolce man mano che ci si avvicina al giorno**. È uno schema prevedibile in team sotto stress: la pressione pubblica si compensa con tenerezza privata. Questa squadra lo fa bene.\n\n7. **L'ultima notte prima dell'evento**: i messaggi sono pochi e sobri. Nessuno vuole caricare gli altri. C'è rispetto reciproco per il bisogno di dormire."
+    },
+    {
+     "citazione": "web-searches > 🏥 Barbara Russo — Safety & Medical Lead > Su Archivio Nereo (RAG interno)",
+     "quando": null,
+     "registro": "semi-formale",
+     "come": "solo semantico (#4)",
+     "testo": "23/10 — \"DVR evento aziendale esterno + minori in platea template precedente\"\n→ restituisce: 3 DVR passati (Open Day, Family Day 2023, hackathon), nessuno perfettamente analogo\n25/10 — \"procedura operativa e-stop eventi aziendali con macchine mobili\"\n→ restituisce: 0 risultati rilevanti. Lacuna nota del RAG.\n28/10 — \"defibrillatore AED noleggio vs acquisto policy aziendale\"\n→ restituisce: policy 2023, acquisto consigliato sopra 3 utilizzi/anno\n03/11 — \"liberatoria minorenne ripresa video template azienda\"\n→ restituisce: 2 template, uno aggiornato GDPR 2024, usabile\n06/11 — \"RSPP contratto esterno evento massimale responsabilità\"\n→ restituisce: norme interne + esempio contratto 2025\n11/11 — \"checklist pre-evento safety 3 giorni prima\"\n→ restituisce: nulla di rilevante, lacuna. Barbara la crea ex novo.\n14/11 — \"gestione presenza istituzionale on. Gabrielli protocollo\"\n→ restituisce: procedura generica visite istituzionali, non 100% applicabile"
+    },
+    {
+     "citazione": "web-searches > Pattern trasversali osservati > 2. **Shift nell'uso degli strumenti**",
+     "quando": null,
+     "registro": "semi-formale",
+     "come": "solo lessicale (#4)",
+     "testo": "Nella fase iniziale del periodo si fa molta ricerca Google tradizionale. Verso la fine, chi ha integrato Perplexity lo usa per le ricerche più complesse. **Archivio Nereo cresce in uso** man mano che il team identifica pattern interni utili. Tre Lead (Barbara, Valeria, Elena) dichiarano di aver \"capito come si usa\" proprio in questo evento, per stress funzionale."
+    },
+    {
+     "citazione": "web-searches > 🔍 Federica Mazzarese — Program Director > Ultima settimana",
+     "quando": null,
+     "registro": "semi-formale",
+     "come": "solo semantico (#5)",
+     "testo": "17/11 — \"sleep deprivation program director notte prima evento live strategie\"\n18/11 — \"cena di squadra pre-evento pro e contro\"\n19/11 — \"cosa dire a CEO prima di un evento a rischio\"\n19/11 — \"fiera di roma padiglione 6 planimetria evacuazione\"\n20/11 — \"preghiera laica pre-performance\"  ← [nessuno lo sa, è una sua cosa personale]\n\n---"
+    }
+   ]
+  },
+  {
+   "domanda": "Quanti dottorandi SPQR hanno partecipato alle riunioni tecniche?",
+   "risposta": "Nei passaggi forniti compaiono quattro dottorandi SPQR nominati per nome: Giacomo, Elisa e Matteo hanno partecipato al briefing tecnico del 28 ottobre 2026, mentre nella riunione del 18 novembre 2026 sono indicati genericamente \"4 PhD SPQR\" senza specificarne i nomi. Nel debrief del 31 ottobre erano presenti \"2 PhD SPQR\", sempre senza nominativi. Non è possibile determinare il numero totale di dottorandi coinvolti perché i passaggi non forniscono un elenco completo né chiariscono se i quattro partecipanti del 18 novembre includessero o meno i tre già nominati in precedenza.",
+   "affermazioni": [
+    {
+     "testo": "Nei passaggi forniti compaiono quattro dottorandi SPQR nominati per nome: Giacomo, Elisa e Matteo hanno partecipato al briefing tecnico del 28 ottobre 2026, mentre nella riunione del 18 novembre 2026 sono indicati genericamente \"4 PhD SPQR\" senza specificarne i nomi.",
+     "stato": "non_supportato",
+     "colore": "rosso",
+     "confidenza": 1.0,
+     "motivo": "L'affermazione sostiene che quattro dottorandi SPQR sono nominati per nome, ma il passaggio 1 indica esplicitamente '3 PhD SPQR (Giacomo, Elisa, Matteo)', quindi sono tre non quattro i dottorandi nominati",
+     "passaggi": [
+      {
+       "citation": "remote-meetings > 2. DR2 — Briefing tecnico pre-dry run — mercoledì 28 ottobre 2026, 14:00 > Intestazione > 28 ottobre 2026, 14:00",
+       "register": "formale",
+       "chunk_id": "remote-meetings:853d12fa"
+      },
+      {
+       "citation": "remote-meetings > 7. Robot Squad — ultima sync prima del walkthrough — mercoledì 18 novembre 2026, 10:00 > Intestazione > 18 novembre 2026, 10:00",
+       "register": "formale",
+       "chunk_id": "remote-meetings:9bfb7214"
+      }
+     ],
+     "ancora_scartata": "",
+     "citazione_fantasma": "",
+     "ancora": {
+      "citazione": "3 PhD SPQR (Giacomo, Elisa, Matteo)",
+      "dove": "remote-meetings > 2. DR2 — Briefing tecnico pre-dry run — mercoledì 28 ottobre 2026, 14:00 > Intestazione > 28 ottobre 2026, 14:00",
+      "file": "remote-meetings.md",
+      "inizio": 3144,
+      "fine": 3179,
+      "contesto": {
+       "prima": "\n---\n\n## 2. DR2 — Briefing tecnico pre-dry run — mercoledì 28 ottobre 2026, 14:00\n**Piattaforma**: Google Meet (per includere SPQR)\n**Durata**: 1h 47min\n**Partecipanti**: Luca, Vincenzo, ",
+       "prova": "3 PhD SPQR (Giacomo, Elisa, Matteo)",
+       "dopo": ", Stefano, Andrea Moro, Barbara, Federica (osservatrice)\n\n### Agenda\n1. Stato codice freezato (15')\n2. Walkthrough scenari DR2 (40')\n3. Gestione fallimenti previsti (30')\n4. Protocollo e-stop e comunicazioni (20')\n\n### Note chiave\n\n**Stato codice (Vincenzo)**"
+      }
+     }
+    },
+    {
+     "testo": "Nel debrief del 31 ottobre erano presenti \"2 PhD SPQR\", sempre senza nominativi.",
+     "stato": "ripescato",
+     "colore": "verde",
+     "confidenza": 1.0,
+     "motivo": "Il passaggio 2 documenta esplicitamente che il debrief del 31 ottobre aveva tra i partecipanti '2 PhD SPQR', senza fornire i nomi specifici, esattamente come affermato.",
+     "passaggi": [
+      {
+       "citation": "remote-meetings > 3. DR2 debrief — sabato 31 ottobre 2026, 10:00 > Intestazione > 31 ottobre 2026, 10:00",
+       "register": "formale",
+       "chunk_id": "remote-meetings:f4ffd2a7"
+      }
+     ],
+     "ancora_scartata": "",
+     "citazione_fantasma": "",
+     "ancora": {
+      "citazione": "**Partecipanti**: tutti i Lead + Vincenzo + 2 PhD SPQR + Andrea Moro + Massimiliano (Luce Eventi, aggiunto alle 11:30)",
+      "dove": "remote-meetings > 3. DR2 debrief — sabato 31 ottobre 2026, 10:00 > Intestazione > 31 ottobre 2026, 10:00",
+      "file": "remote-meetings.md",
+      "inizio": 5100,
+      "fine": 5218,
+      "contesto": {
+       "prima": "- [Vincenzo] post-DR2 debrief short entro venerdì 30 sera\n\n---\n\n## 3. DR2 debrief — sabato 31 ottobre 2026, 10:00\n**Piattaforma**: Teams (ibrido, 8 in sala + 4 remote)\n**Durata**: 2h 18min (over di 48 min)\n",
+       "prova": "**Partecipanti**: tutti i Lead + Vincenzo + 2 PhD SPQR + Andrea Moro + Massimiliano (Luce Eventi, aggiunto alle 11:30)",
+       "dopo": "\n\n### Stato\n- 2 cicli di match su 3 completati in DR2 (67% success rate)\n- 47 issue aperte nel tracker (vedi thread #32)\n- 6 bloccanti, 14 alte, 27 medie/basse\n\n### Note\n\n**Federica (apertura)**"
+      }
+     }
+    },
+    {
+     "testo": "Non è possibile determinare il numero totale di dottorandi coinvolti perché i passaggi non forniscono un elenco completo né chiariscono se i quattro partecipanti del 18 novembre includessero o meno i tre già nominati in precedenza.",
+     "stato": "inferito",
+     "colore": "blu",
+     "confidenza": 0.95,
+     "motivo": "Il passaggio 1 nomina esplicitamente 3 dottorandi (Giacomo, Elisa, Matteo), il passaggio 2 indica '2 PhD SPQR', e il passaggio 3 indica '4 PhD SPQR', senza chiarire se si tratti delle stesse persone o di persone aggiuntive. Non esiste un elenco completo che permetta di determinare il numero totale univoco di dottorandi coinvolti nel progetto.",
+     "passaggi": [
+      {
+       "citation": "remote-meetings > 2. DR2 — Briefing tecnico pre-dry run — mercoledì 28 ottobre 2026, 14:00 > Intestazione > 28 ottobre 2026, 14:00",
+       "register": "formale",
+       "chunk_id": "remote-meetings:853d12fa"
+      },
+      {
+       "citation": "remote-meetings > 3. DR2 debrief — sabato 31 ottobre 2026, 10:00 > Intestazione > 31 ottobre 2026, 10:00",
+       "register": "formale",
+       "chunk_id": "remote-meetings:f4ffd2a7"
+      },
+      {
+       "citation": "remote-meetings > 7. Robot Squad — ultima sync prima del walkthrough — mercoledì 18 novembre 2026, 10:00 > Intestazione > 18 novembre 2026, 10:00",
+       "register": "formale",
+       "chunk_id": "remote-meetings:9bfb7214"
+      }
+     ],
+     "ancora_scartata": "3 PhD SPQR (Giacomo, Elisa, Matteo) — Il frammento è una semplice intestazione che elenca tre nomi senza contesto, mentre l'affermazione riguarda l'impossibilità di determinare un numero totale confrontando due gruppi di partecipanti in date diverse, incluso un riferimento al 18 novembre che qui non compare",
+     "citazione_fantasma": ""
+    }
+   ],
+   "passaggi_recuperati": [
+    {
+     "citazione": "remote-meetings > 2. DR2 — Briefing tecnico pre-dry run — mercoledì 28 ottobre 2026, 14:00 > Intestazione > 28 ottobre 2026, 14:00",
+     "quando": "2026-10-28T14:00",
+     "registro": "formale",
+     "come": "both (denso #1, lessicale #8)",
+     "testo": "**Piattaforma**: Google Meet (per includere SPQR)\n**Durata**: 1h 47min\n**Partecipanti**: Luca, Vincenzo, 3 PhD SPQR (Giacomo, Elisa, Matteo), Stefano, Andrea Moro, Barbara, Federica (osservatrice)\n\n### Agenda"
+    },
+    {
+     "citazione": "remote-meetings > 3. DR2 debrief — sabato 31 ottobre 2026, 10:00 > Intestazione > 31 ottobre 2026, 10:00",
+     "quando": "2026-10-31T10:00",
+     "registro": "formale",
+     "come": "both (denso #10, lessicale #1)",
+     "testo": "**Piattaforma**: Teams (ibrido, 8 in sala + 4 remote)\n**Durata**: 2h 18min (over di 48 min)\n**Partecipanti**: tutti i Lead + Vincenzo + 2 PhD SPQR + Andrea Moro + Massimiliano (Luce Eventi, aggiunto alle 11:30)\n\n### Stato"
+    },
+    {
+     "citazione": "remote-meetings > 7. Robot Squad — ultima sync prima del walkthrough — mercoledì 18 novembre 2026, 10:00 > Intestazione > 18 novembre 2026, 10:00",
+     "quando": "2026-11-18T10:00",
+     "registro": "formale",
+     "come": "both (denso #4, lessicale #14)",
+     "testo": "**Piattaforma**: Google Meet\n**Durata**: 1h 12min\n**Partecipanti**: Luca, Vincenzo, 4 PhD SPQR, Stefano (prime 30')\n\n### Stato finale"
+    },
+    {
+     "citazione": "email-threads > Thread #30 — \"🚨 Illuminazione padiglione — ombre longitudinali compromettono vision robot\" > Stefano Bianchi 4 nov 11:33",
+     "quando": "2026-11-04T11:33",
+     "registro": "formale",
+     "come": "both (denso #9, lessicale #18)",
+     "testo": "Installati 12 proiettori ieri sera. Test vision stamattina con codice SPQR: errore profondità sceso a ±6 cm. Chiudo thread. Prossima verifica al walkthrough del 20/11.\n\n---"
+    },
+    {
+     "citazione": "remote-meetings > 7. Robot Squad — ultima sync prima del walkthrough — mercoledì 18 novembre 2026, 10:00 > Ultimo commento Luca > 18 novembre 2026, 10:00",
+     "quando": "2026-11-18T10:00",
+     "registro": "formale",
+     "come": "both (denso #11, lessicale #17)",
+     "testo": "\"Vincenzo, nei nostri 7 mesi non ti ho mai detto grazie in modo esplicito. Lo faccio ora. Questa cosa senza SPQR non esisteva. Grazie.\"\n\n---"
+    },
+    {
+     "citazione": "email-threads > Thread #28 — \"Hardware status post-repair + lista definitiva robot per DR2\" > Sintesi",
+     "quando": null,
+     "registro": "formale",
+     "come": "solo semantico (#2)",
+     "testo": "**Aperto**: 22 ott 2026, 09:14 · **Messaggi**: 14 · **Chiusura**: 24 ott 17:02\n**Partecipanti**: Luca Ferraresi, Vincenzo Suriani, Federica Mazzarese, Valeria De Santis, Alessandro Conti\n\n**Sintesi**: conferma rientro dei 2 K1 riparati, uno con ritardo di 4 giorni via DHL Express Shanghai. Confermato backup con 3 NAO prestati da SPQR. Si allinea la dotazione per DR2 a 11 robot (10 in campo + 1 spare), accettando di scendere da 12 previsti.\n\n### Messaggi chiave"
+    },
+    {
+     "citazione": "phone-calls > ☎️ Federica → Barbara Russo · 20 nov 2026, 21:52 > Federica 20 nov 21:52",
+     "quando": "2026-11-20T21:52",
+     "registro": "semi-formale",
+     "come": "solo lessicale (#2)",
+     "testo": "⏱️ 5 min\n📍 Dopo cena di squadra, chiamata secca.\n🗒️\n- Federica: \"C'è stato un piccolo incendio in un cestino nel pad 6 dopo cena. Nulla di serio, vigili l'hanno spento in 30 secondi. Ma vorrei tu facessi un sopralluogo domattina alle 7.\"\n- Barbara: \"Vado. Richiamami dopo.\"\n- Federica: \"Non chiamo nessun altro stanotte. Vai a dormire adesso.\"\n\n---"
+    },
+    {
+     "citazione": "remote-meetings > Totale meeting in periodo > Intestazione",
+     "quando": null,
+     "registro": "formale",
+     "come": "solo semantico (#3)",
+     "testo": "| Tipo | N. |\n|---|---|\n| Stand-up settimanale | 4 |\n| Robot Squad sync ricorrente | 4 |\n| Risk Review ricorrente | 4 |\n| Steering Committee | 1 (+ 1 straordinario Oct) |\n| DR2 + debrief | 2 |\n| Press briefings (stampa) | 3 (Tier1 1:1 + collettivo) |\n| Bilaterali Federica-Lead | 19 |\n| Emergenza / crisi | 6 |\n| Onboarding commentatore, fornitori | 4 |\n| Partnership SPQR bilaterali | 6 |\n| Cerimonie formali (all-hands, farewell) | 2 |\n| Walkthrough finale | 1 |\n| Briefing last-minute | 2 |\n| **Totale periodo** | **68** |\n\n### Metrica osservata"
+    }
+   ]
+  },
+  {
+   "domanda": "Qual è il fatturato annuo di Booster Robotics?",
+   "risposta": "I passaggi forniti non contengono informazioni sul fatturato annuo di Booster Robotics. L'archivio menziona l'azienda come fornitrice dei robot K1 utilizzati nella partita, ma non riporta dati finanziari o economici relativi a Booster Robotics.",
+   "affermazioni": [
+    {
+     "testo": "I passaggi forniti non contengono informazioni sul fatturato annuo di Booster Robotics.",
+     "stato": "inferito",
+     "colore": "blu",
+     "confidenza": 1.0,
+     "motivo": "L'affermazione sostiene che i passaggi non contengono informazioni sul fatturato annuo di Booster Robotics. Dopo aver esaminato tutti i passaggi forniti, posso confermare che nessuno di essi riporta dati sul fatturato annuo dell'azienda. I passaggi menzionano Booster Robotics solo come fornitore di robot (K1, T1) e SDK, ma non forniscono informazioni finanziarie o di fatturato.",
+     "passaggi": [],
+     "ancora_scartata": "",
+     "citazione_fantasma": ""
+    },
+    {
+     "testo": "L'archivio menziona l'azienda come fornitrice dei robot K1 utilizzati nella partita, ma non riporta dati finanziari o economici relativi a Booster Robotics.",
+     "stato": "inferito",
+     "colore": "blu",
+     "confidenza": 0.95,
+     "motivo": "I passaggi identificano Booster Robotics come fornitrice dei robot K1 utilizzati nella partita (passaggi 1, 2, 3 menzionano robot Booster K1 e interazioni con Booster). Nessuno degli otto passaggi riporta dati finanziari o economici relativi a Booster Robotics, confermando entrambe le componenti dell'affermazione.",
+     "passaggi": [
+      {
+       "citation": "email-threads > Thread #28 — \"Hardware status post-repair + lista definitiva robot per DR2\" > Alessandro Conti 22 ott 14:08",
+       "register": "formale",
+       "chunk_id": "email-threads:2e3c5fb2"
+      },
+      {
+       "citation": "remote-meetings > 7. Robot Squad — ultima sync prima del walkthrough — mercoledì 18 novembre 2026, 10:00 > Rituale pre-match (proposto da Vincenzo) > 18 novembre 2026, 10:00",
+       "register": "formale",
+       "chunk_id": "remote-meetings:64cdd509"
+      },
+      {
+       "citation": "web-searches > 🤖 Luca Ferraresi — Robotics Program Lead > Query significative",
+       "register": "semi-formale",
+       "chunk_id": "web-searches:d87b36ab"
+      },
+      {
+       "citation": "email-threads > Cast ricorrente",
+       "register": "formale",
+       "chunk_id": "email-threads:b417a6b4"
+      },
+      {
+       "citation": "remote-meetings > 5. Briefing stampa embargato — martedì 10 novembre 2026, 15:00 > Domande interessanti (estratto) > 10 novembre 2026, 15:00",
+       "register": "formale",
+       "chunk_id": "remote-meetings:c79a3618"
+      },
+      {
+       "citation": "web-searches > 📣 Tommaso Marchi — Comms Lead > Ricerche di context per press",
+       "register": "semi-formale",
+       "chunk_id": "web-searches:4b7b175c"
+      },
+      {
+       "citation": "llm-chats > 🛰️ Stefano Bianchi — Technical Director > Sessione 1 — Claude, 31 ottobre 2026, 09:00 (durante DR2 debrief) > [annotazione] 31 ottobre 2026, 09:00",
+       "register": "semi-formale",
+       "chunk_id": "llm-chats:5d03fdfe"
+      },
+      {
+       "citation": "remote-meetings > 2. DR2 — Briefing tecnico pre-dry run — mercoledì 28 ottobre 2026, 14:00 > Note chiave · Domanda di Andrea Moro > broadcast 28 ottobre 2026, 14:00",
+       "register": "formale",
+       "chunk_id": "remote-meetings:3c564b76"
+      }
+     ],
+     "ancora_scartata": "Si può chiedere a Booster uno shipment espresso spare direttamente da magazzino EU? — Il frammento cita Booster come possibile fornitore di spare parts ma non conferma che abbia fornito i robot K1 utilizzati nella partita, e non contiene alcun riferimento ai robot K1 stessi",
+     "citazione_fantasma": ""
+    }
+   ],
+   "passaggi_recuperati": [
+    {
+     "citazione": "email-threads > Thread #28 — \"Hardware status post-repair + lista definitiva robot per DR2\" > Alessandro Conti 22 ott 14:08",
+     "quando": "2026-10-22T14:08",
+     "registro": "formale",
+     "come": "both (denso #1, lessicale #2)",
+     "testo": "Per produzione: 10 robot in campo + 1 spare è il minimo tecnico. Se perdiamo ancora anche solo 1 K1 prima del 21/11 abbiamo problema narrativo grosso. Si può chiedere a Booster uno shipment espresso spare direttamente da magazzino EU?"
+    },
+    {
+     "citazione": "remote-meetings > 7. Robot Squad — ultima sync prima del walkthrough — mercoledì 18 novembre 2026, 10:00 > Rituale pre-match (proposto da Vincenzo) > 18 novembre 2026, 10:00",
+     "quando": "2026-11-18T10:00",
+     "registro": "formale",
+     "come": "both (denso #5, lessicale #1)",
+     "testo": "\"Ho un'idea un po' stupida. Facciamo una foto squadra venerdì mattina. Dieci robot schierati, il team umano SPQR e di sistemi dietro. Manderemo a Booster e a RoboCup Federation come omaggio. Mi piace perché ci ricorda perché lo facciamo.\"\n\nAccettata. Chiara Volpe ci farà uscire un contenuto social dopo l'evento."
+    },
+    {
+     "citazione": "web-searches > 🤖 Luca Ferraresi — Robotics Program Lead > Query significative",
+     "quando": null,
+     "registro": "semi-formale",
+     "come": "both (denso #3, lessicale #4)",
+     "testo": "22/10 — [Google]     \"Booster K1 knee joint backlash tolerance repair\"\n22/10 — [GitHub]     \"booster-t1 ROS2 referee box client\"\n23/10 — [arXiv]      \"humanoid bipedal fall recovery 2024 2025 benchmark\"\n25/10 — [Google]     \"WiFi 6E dedicated network humanoid robot autonomous latency\"\n27/10 — [GitHub]     \"rcll league referee client throttling\"\n29/10 — [Google]     \"battery swap humanoid robot time optimization lipo pouch\"\n29/10 — [Stack Overflow]  \"nvidia jetson orin hot swap live deployment\"\n01/11 — [Google Scholar]  \"shadow gradient localization stereo RGB humanoid\"\n02/11 — [GitHub]     \"b-human team code release 2025 localization patch\"\n05/11 — [Perplexity] \"what is the acceptable rate of falls per match in RoboCup humanoid league 2025\"\n09/11 — [arXiv]      \"reward shaping goal policy humanoid soccer threshold tuning\"\n10/11 — [GitHub]     \"booster-robotics booster-sdk throttling referee signal bug\"  ← [notte del bug]\n12/11 — [Google]     \"lipo pouch battery heating pre-match performance\"\n14/11 — [Google]     \"RF interference 5GHz fair ottica Italia normativa\"\n17/11 — [Google]     \"calibrazione finale humanoid vision giorno evento checklist\"\n19/11 — [GitHub]     \"[il suo repo] — verifica ultimo commit tag v2.1\"\n20/11 — [Google]     \"notte prima evento tecnico consigli di ingegnere senior\"\n\n---"
+    },
+    {
+     "citazione": "email-threads > Cast ricorrente",
+     "quando": null,
+     "registro": "formale",
+     "come": "both (denso #6, lessicale #3)",
+     "testo": "- **Marco Bellini** — Executive Sponsor / CHRO\n- **Federica Mazzarese** — Program Director (PD)\n- **Luca Ferraresi** — Robotics Program Lead (interno)\n- **Vincenzo Suriani** — SPQR Sapienza, Team Leader\n- **Alessandro Conti** — Event Production Lead\n- **Stefano Bianchi** — Technical Director\n- **Barbara Russo** — Safety & Medical Lead\n- **Elena Moretti** — Charity & Partners Lead\n- **Tommaso Marchi** — Comms Lead\n- **Valeria De Santis** — Legal & Finance Lead\n- **Giulia Peretti** — Human Squad Lead\n- **Chiara Volpe** — Content Producer\n- **Andrea Moro** — Broadcast Director\n\n---"
+    },
+    {
+     "citazione": "remote-meetings > 5. Briefing stampa embargato — martedì 10 novembre 2026, 15:00 > Domande interessanti (estratto) > 10 novembre 2026, 15:00",
+     "quando": "2026-11-10T15:00",
+     "registro": "formale",
+     "come": "both (denso #2, lessicale #16)",
+     "testo": "**Milena Gabanelli (Corriere)**:\n\"Perché non avete semplicemente donato i 600 mila euro?\"\n\nRisposta Bellini (allineata):\n\"Tre ragioni. Prima: visibilità moltiplicata del messaggio STEM. Stima PR che ci dà 3-5x l'impatto mediatico di una donazione tradizionale. Seconda: il coinvolgimento dei nostri dipendenti crea cultura interna che dura oltre l'evento. Terza — e questa è la meno raccontabile ma è vera: portare robot autonomi in uno spettacolo aperto al pubblico abbassa il muro tra ricerca e società. Questo era scritto nella missione di Prometeo prima ancora che partissimo. Fanno loro il lavoro educativo durante tutto l'anno. Noi lo amplifichiamo una sera.\"\n\n**Riccardo Luna (Repubblica)**:\n\"Quanti gol pensate di prendere?\"\n\nRisposta Vincenzo (rilassata):\n\"Dai 10 ai 20. I robot autonomi del 2026 non sono ancora pronti per competere con umani, tutti nell'ambiente lo sappiamo. La partita non è tecnica, è culturale. E poi nel 2050 vi ricontatteremo per l'intervista di follow-up.\""
+    },
+    {
+     "citazione": "web-searches > 📣 Tommaso Marchi — Comms Lead > Ricerche di context per press",
+     "quando": null,
+     "registro": "semi-formale",
+     "come": "solo semantico (#4)",
+     "testo": "23/10 — [Perplexity]  \"casi studio evento robot charity Italia 2020-2025 copertura stampa\"\n25/10 — [Google]      \"Milena Gabanelli Corriere Innovazione pezzi robotica ultimi 12 mesi\"\n26/10 — [Google]      \"Riccardo Luna Repubblica coperture tech-sociale\"\n26/10 — [Google]      \"Luca De Biase Sole 24 Ore posizione AI umanoide recente\"\n02/11 — [Perplexity]  \"come reagiscono i giornalisti italiani alla narrativa robot autonomi in eventi corporate 2024 2025\"\n04/11 — [Perplexity]  \"case study comunicazione crisi evento robotico fallimento\"\n05/11 — [Perplexity]  \"crisis statement italiano tono esempi chirurgici aziende 2024\"\n08/11 — [Google]      \"Fondazione Prometeo STEM Italia pickup stampa precedenti\"\n09/11 — [Google]      \"on. Roberto Gabrielli Presidente Fondazione Prometeo background politico\"\n11/11 — [Archivio]    \"dichiarazioni pubbliche Marco Bellini ultimi 24 mesi\"\n→ sblocca: scoperta che Bellini 18 mesi fa ha detto qualcosa in contrasto con la narrativa oggi. Nessun giornalista l'ha rispolverato, ma Tommaso lo tiene presente.\n13/11 — [Google]      \"Giulia Bertagnolli cachet evento privato tecnologico\"\n16/11 — [Perplexity]  \"pickup stampa 47 articoli benchmark evento corporate charity\""
+    },
+    {
+     "citazione": "llm-chats > 🛰️ Stefano Bianchi — Technical Director > Sessione 1 — Claude, 31 ottobre 2026, 09:00 (durante DR2 debrief) > [annotazione] 31 ottobre 2026, 09:00",
+     "quando": "2026-10-31T09:00",
+     "registro": "semi-formale",
+     "come": "solo lessicale (#5)",
+     "testo": "**Nota**: Stefano arriva alla call con Massimiliano con numeri precisi. Massimiliano capisce che Stefano sa di cosa parla e non tenta di gonfiare il preventivo.\n\n---"
+    },
+    {
+     "citazione": "remote-meetings > 2. DR2 — Briefing tecnico pre-dry run — mercoledì 28 ottobre 2026, 14:00 > Note chiave · Domanda di Andrea Moro > broadcast 28 ottobre 2026, 14:00",
+     "quando": "2026-10-28T14:00",
+     "registro": "formale",
+     "come": "solo lessicale (#6)",
+     "testo": "**Domanda di Andrea Moro (broadcast)**\n\"Se chiamiamo e-stop, il broadcast cosa fa?\"\n\nDecisione: cartello grafico \"⚙️ Tecnical pause — il gioco riprende a breve\" + voce Bertagnolli che riempie. Pre-registrata una clip di Vincenzo che spiega il comportamento dei robot (fallback contenuto)."
+    }
+   ]
+  }
+ ]
+}
