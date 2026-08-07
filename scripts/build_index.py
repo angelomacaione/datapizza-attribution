@@ -20,6 +20,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "services" / "api"))
 
+from rag.ambiente import carica_env  # noqa: E402
+
+carica_env()   # .env -> os.environ, cosi' non serve ricordarsi di sourcearlo
+
 from datapizza.type import Chunk as DPChunk  # noqa: E402
 from rag.chunker import chunk_vault  # noqa: E402
 from rag.embedder import LocalEmbedder  # noqa: E402
