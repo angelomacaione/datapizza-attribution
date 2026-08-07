@@ -358,14 +358,44 @@ def _ancora_pertinente(frase: str, stato: str, ancora: Ancora,
     return e.sufficiente, e.motivo
 
 
-def _rileva_conflitto(v: VerdettoGiudice, hits: list[Hit]) -> ConflittoTemporale | None:
+MESI_ESTESI = {1: "gennaio", 2: "febbraio", 3: "marzo", 4: "aprile", 5: "maggio",
+               6: "giugno", 7: "luglio", 8: "agosto", 9: "settembre",
+               10: "ottobre", 11: "novembre", 12: "dicembre"}
+
+
+def _giorno(ts: str) -> str:
+    """"2026-10-28T14:00" -> "28 ottobre". Se non e' una data, torna com'e'."""
+    try:
+        _, mm, dd = ts[:10].split("-")
+        return f"{int(dd)} {MESI_ESTESI[int(mm)]}"
+    except (ValueError, KeyError):
+        return ts
+
+
+def _dentro(ancora: Ancora | None, scheda: dict | None) -> bool:
+    """La prova esibita cade dentro il passaggio descritto da scheda?"""
+    if ancora is None or not scheda:
+        return False
+    if ancora.source_file != scheda.get("file"):
+        return False
+    inizio, fine = scheda.get("start"), scheda.get("end")
+    if inizio is None or fine is None:
+        return False
+    return inizio <= ancora.inizio_nel_file and ancora.fine_nel_file <= fine
+
+
+def _rileva_conflitto(v: VerdettoGiudice,
+                      hits: list[Hit]) -> tuple[ConflittoTemporale | None, Hit | None, Hit | None]:
     """Ordina il conflitto segnalato dal giudice usando i NOSTRI timestamp.
 
     Al modello chiediamo solo quali passaggi confliggono. Quale venga prima lo
     decidiamo noi sui metadati: e' un dato che abbiamo, non serve fidarsi.
+
+    Restituisce anche i due passaggi, perche' sapere QUALE dei due sostiene la
+    prova e' cio' che distingue una smentita da un ricordo scaduto.
     """
     if not v.conflitto_temporale or len(v.passaggi_in_conflitto) < 2:
-        return None
+        return None, None, None
     scelti = []
     for n in v.passaggi_in_conflitto:
         if 1 <= n <= len(hits):
@@ -373,11 +403,11 @@ def _rileva_conflitto(v: VerdettoGiudice, hits: list[Hit]) -> ConflittoTemporale
             if m.get("timestamp"):
                 scelti.append((m["timestamp"], m, hits[n - 1]))
     if len(scelti) < 2:
-        return None
+        return None, None, None
     scelti.sort(key=lambda t: t[0])
     (t_pri, m_pri, h_pri), (t_dop, m_dop, h_dop) = scelti[0], scelti[-1]
     if t_pri == t_dop:
-        return None
+        return None, None, None
 
     def scheda(ts, m, h):
         return {"quando": ts, "dove": m.get("citation", ""),
@@ -385,9 +415,10 @@ def _rileva_conflitto(v: VerdettoGiudice, hits: list[Hit]) -> ConflittoTemporale
                 "end": m.get("end"), "registro": m.get("register", ""),
                 "estratto": h.chunk.text[:220]}
 
-    return ConflittoTemporale(nota=v.nota_temporale,
-                              prima=scheda(t_pri, m_pri, h_pri),
-                              dopo=scheda(t_dop, m_dop, h_dop))
+    return (ConflittoTemporale(nota=v.nota_temporale,
+                               prima=scheda(t_pri, m_pri, h_pri),
+                               dopo=scheda(t_dop, m_dop, h_dop)),
+            h_pri, h_dop)
 
 
 def verifica_affermazione(frase: str, hits: list[Hit]) -> Affermazione:
@@ -418,6 +449,34 @@ def verifica_affermazione(frase: str, hits: list[Hit]) -> Affermazione:
     else:
         stato = "inferito"
 
+    # --- la smentita e' scaduta? --------------------------------------------
+    # Il caso che rompe tutto: l'archivio ha cambiato idea, la frase segue la
+    # versione NUOVA, e il giudice la dichiara contraddetta esibendo la VECCHIA.
+    # Il conflitto lo rilevava pure, e la nota descriveva il cambiamento nella
+    # direzione giusta — ma il verdetto non ascoltava la nota. Un archivio che
+    # dice "prima era cosi'" non sta smentendo: sta raccontando la sua storia,
+    # e chiamarlo "non supportato" e' il tipo di errore che questa demo esiste
+    # per denunciare, commesso da lei stessa.
+    conflitto, _h_prima, h_dopo = _rileva_conflitto(v, hits)
+    prova_scaduta = ""
+    if (stato == "non_supportato" and conflitto is not None
+            and _dentro(ancora, conflitto.prima)):
+        prova_scaduta = (f"{ancora.citazione} — smentita datata {conflitto.prima['quando']}, "
+                         f"superata da {conflitto.dopo['quando']}")
+        # Il passaggio piu' recente sostiene la frase alla lettera? Allora e'
+        # ripescato. Se non c'e' un frammento letterale l'appoggio esiste
+        # comunque, ma non nella forma che sappiamo mostrare: inferito.
+        nuova = trova_ancora(frase, [h_dopo]) if h_dopo is not None else None
+        ancora = nuova
+        stato = "ripescato" if nuova else "inferito"
+        # Il motivo scritto dal giudice raccontava una smentita: accanto a un
+        # verde direbbe il contrario del verdetto. Lo riscriviamo noi, con le
+        # date che abbiamo gia' in mano — e la nota del giudice sul cambiamento
+        # resta comunque visibile nel riquadro del conflitto.
+        v.motivo = (f"L'archivio diceva altro fino al {_giorno(conflitto.prima['quando'])}, "
+                    f"ma il passaggio piu' recente ({_giorno(conflitto.dopo['quando'])}) "
+                    f"sostiene l'affermazione.")
+
     # Terzo passaggio: la prova esibita deve reggere isolata. Si applica solo
     # dove una prova viene davvero mostrata, quindi verde e rosso ancorati.
     scartata = ""
@@ -445,8 +504,8 @@ def verifica_affermazione(frase: str, hits: list[Hit]) -> Affermazione:
     return Affermazione(testo=frase, stato=stato, confidenza=v.confidenza,
                         motivo=v.motivo, ancora=ancora, passaggi=usati,
                         citazione_fantasma=fantasma,
-                        conflitto=_rileva_conflitto(v, hits),
-                        ancora_scartata=scartata)
+                        conflitto=conflitto,
+                        ancora_scartata=scartata or prova_scaduta)
 
 
 def verifica_risposta(risposta: str, hits: list[Hit]) -> list[Affermazione]:
