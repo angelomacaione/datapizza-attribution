@@ -583,9 +583,9 @@ def main() -> int:
   {info['model']}, verificate frase per frase da un secondo modello che non sa come
   sono state prodotte. Nessun contenuto è scritto a mano: verdetti, citazioni e offset
   vengono da esecuzioni reali.<br>
-  Demo statica: le risposte precalcolate sono quattro. Lo stato arancione non compare in
-  nessuna delle quattro — quando l'archivio tace, chi risponde lo dichiara invece di
-  riempire il vuoto.
+  La chat interroga l'archivio dal vivo. Raggiunto il tetto di spesa restano quattro
+  risposte precalcolate, e la chat lo dichiara invece di fingere. Lo stato arancione segna
+  le domande a cui l'archivio non risponde: chi risponde lo ammette invece di riempire il vuoto.
 </div>
 
 

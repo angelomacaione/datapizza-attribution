@@ -16,4 +16,6 @@ __pycache__/
 .venv/
 venv/
 .env
+# ogni variante (.env.locale, .env.prima-della-correzione): contengono chiavi
+.env.*
 .DS_Store

@@ -21,6 +21,9 @@ from __future__ import annotations
 
 import json
 import os
+import ssl
+import time
+import urllib.error
 import urllib.request
 
 from datapizza.core.embedder import BaseEmbedder
@@ -29,6 +32,55 @@ from datapizza.type import DenseEmbedding
 # Due fornitori, stessa forma di richiesta. Voyage e' il partner consigliato da
 # Anthropic; OpenAI e' quello che quasi tutti hanno gia'. Il codice non prende
 # posizione: legge EMBEDDING_PROVIDER.
+def _contesto_ssl() -> ssl.SSLContext | None:
+    """Certificati espliciti invece di quelli di sistema.
+
+    Il Python di python.org su macOS porta il proprio OpenSSL e non legge il
+    portachiavi: senza aver lanciato "Install Certificates.command" ogni
+    chiamata HTTPS fatta con urllib muore con CERTIFICATE_VERIFY_FAILED. Le
+    chiamate ad Anthropic non se ne accorgono perche' il loro SDK usa httpx,
+    che si porta certifi dentro. Qui facciamo lo stesso, cosi' lo script non
+    dipende da un passaggio manuale che nessuno ricorda di aver saltato.
+    """
+    try:
+        import certifi
+    except ImportError:
+        return None
+    return ssl.create_default_context(cafile=certifi.where())
+
+
+_SSL = _contesto_ssl()
+
+# I piani gratuiti dei fornitori di embedding hanno limiti di frequenza
+# stretti. Mandare 224 chunk in due blocchi da 128 li supera, e il 429 arriva
+# a meta' indicizzazione lasciando l'indice a meta'. Blocchi piccoli, una
+# pausa fra l'uno e l'altro, e ritentativi con attesa crescente.
+BLOCCO = int(os.environ.get("EMBEDDING_BATCH", "32"))
+PAUSA = float(os.environ.get("EMBEDDING_PAUSA", "1.0"))
+RITENTATIVI = 6
+
+
+def _con_ritenta(fn, *args, **kwargs):
+    """Riprova sui 429 e sui guasti temporanei, rispettando Retry-After.
+
+    Un 429 non e' un errore del programma: e' il fornitore che dice "piu'
+    piano". Trattarlo come fatale significa far rilanciare tutto all'utente,
+    che e' esattamente quello che un programma dovrebbe evitargli.
+    """
+    attesa = 2.0
+    for tentativo in range(1, RITENTATIVI + 1):
+        try:
+            return fn(*args, **kwargs)
+        except urllib.error.HTTPError as e:
+            if e.code not in (429, 500, 502, 503, 529) or tentativo == RITENTATIVI:
+                raise
+            suggerita = e.headers.get("retry-after") if e.headers else None
+            pausa = float(suggerita) if (suggerita or "").replace(".", "").isdigit() else attesa
+            print(f"    {e.code}: attendo {pausa:.0f}s e riprovo "
+                  f"({tentativo}/{RITENTATIVI - 1})", flush=True)
+            time.sleep(pausa)
+            attesa = min(attesa * 2, 60)
+
 FORNITORI = {
     "voyage": {
         "url": "https://api.voyageai.com/v1/embeddings",
@@ -82,7 +134,7 @@ class ApiEmbedder(BaseEmbedder):
             self.conf["url"], data=json.dumps(corpo).encode(),
             headers={"content-type": "application/json",
                      "authorization": f"Bearer {self._chiave()}"})
-        with urllib.request.urlopen(req, timeout=60) as r:
+        with urllib.request.urlopen(req, timeout=60, context=_SSL) as r:
             dati = json.load(r)
         # entrambi i fornitori restituiscono data[] ordinato per index
         righe = sorted(dati["data"], key=lambda x: x.get("index", 0))
@@ -96,10 +148,13 @@ class ApiEmbedder(BaseEmbedder):
         if not testi:
             return [] if not singolo else []
         vettori = []
-        # i fornitori hanno tetti sul numero di input per chiamata: 128 e' un
-        # valore prudente per entrambi
-        for i in range(0, len(testi), 128):
-            vettori.extend(self._chiama(testi[i:i + 128]))
+        blocchi = [testi[i:i + BLOCCO] for i in range(0, len(testi), BLOCCO)]
+        for n, blocco in enumerate(blocchi, 1):
+            if len(blocchi) > 1:
+                print(f"  blocco {n}/{len(blocchi)} ({len(blocco)} testi)", flush=True)
+            vettori.extend(_con_ritenta(self._chiama, blocco))
+            if n < len(blocchi):
+                time.sleep(PAUSA)
         return vettori[0] if singolo else vettori
 
     async def a_embed(self, text: str | list[str], **kwargs):
@@ -114,12 +169,15 @@ class ApiEmbedder(BaseEmbedder):
         return self.embed(text)
 
     def _chiama_query(self, testo: str) -> list[float]:
+        return _con_ritenta(self._chiama_query_grezza, testo)
+
+    def _chiama_query_grezza(self, testo: str) -> list[float]:
         corpo = {"model": self.model_name, "input": [testo], "input_type": "query"}
         req = urllib.request.Request(
             self.conf["url"], data=json.dumps(corpo).encode(),
             headers={"content-type": "application/json",
                      "authorization": f"Bearer {self._chiave()}"})
-        with urllib.request.urlopen(req, timeout=60) as r:
+        with urllib.request.urlopen(req, timeout=60, context=_SSL) as r:
             return json.load(r)["data"][0]["embedding"]
 
     def embed_passages(self, texts: list[str]) -> list[list[float]]:

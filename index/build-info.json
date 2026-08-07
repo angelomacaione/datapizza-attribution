@@ -1,7 +1,7 @@
 {
   "chunks": 224,
-  "model": "intfloat/multilingual-e5-large",
-  "embedder_kind": "e5",
+  "model": "voyage-3",
+  "embedder_kind": "voyage-3",
   "dimensions": 1024,
   "collection": "prometeo",
   "channels": [
