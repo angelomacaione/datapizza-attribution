@@ -34,9 +34,10 @@ TOKENS = """
     --radius:.75rem; --spacing:.25rem;
     --font-mono:"JetBrains Mono",ui-monospace,monospace;
     --font-sans:ui-monospace,monospace;
-    --font-serif:serif;   /* la terza famiglia del loro sistema: la uso per le
-                             parti discorsive, cosi' le spiegazioni si staccano
-                             dall'interfaccia senza introdurre un font esterno */
+    /* font-serif esiste nel canonical ma vale "serif": una bare generic stack,
+       che la loro stessa guida marca come finding. Le parti discorsive si
+       distinguono con peso, dimensione, colore e tracking, non con una
+       famiglia estranea al sistema. */
     --chart-1:#5f8787; --chart-2:#e78a53; --chart-3:#fbcb97;
     --shadow-sm:0px 1px 4px 0px #0000000d,0px 1px 2px -1px #0000000d;
     --shadow-md:0px 1px 4px 0px #0000000d,0px 2px 4px -1px #0000000d;
@@ -70,7 +71,7 @@ body{background:var(--muted);color:var(--foreground);font-family:var(--font-sans
 .scena div{border-left:2px solid var(--border);padding-left:calc(var(--spacing)*3)}
 .scena b{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;
   color:var(--muted-foreground);margin-bottom:2px;font-weight:600}
-.scena span{font-size:13px;font-family:var(--font-serif)}
+.scena span{font-size:13px}
 
 /* --- impianto a due colonne ---------------------------------------- */
 .cols{display:grid;grid-template-columns:1fr 390px;gap:calc(var(--spacing)*4);align-items:start}
@@ -82,8 +83,10 @@ body{background:var(--muted);color:var(--foreground);font-family:var(--font-sans
   padding:calc(var(--spacing)*4) calc(var(--spacing)*5);border-bottom:1px solid var(--border)}
 .pallino{width:8px;height:8px;border-radius:50%;background:var(--st-verde);flex:none}
 .intestazione b{font-size:13px;font-weight:600}
-.intestazione span{font-size:12px;color:var(--muted-foreground);margin-left:auto;
-  font-family:var(--font-serif)}
+/* la meta va a destra; il selettore deve essere specifico perche' anche
+   .pallino e' uno <span> e con "intestazione span" finiva spinto pure lui,
+   trascinando il titolo al centro */
+.intestazione .meta{font-size:12px;color:var(--muted-foreground);margin-left:auto}
 .flusso{flex:1;overflow-y:auto;padding:calc(var(--spacing)*5);
   display:flex;flex-direction:column;gap:calc(var(--spacing)*4)}
 .msg{max-width:88%}
@@ -93,12 +96,11 @@ body{background:var(--muted);color:var(--foreground);font-family:var(--font-sans
 .msg.bot{align-self:flex-start;width:100%}
 .msg.bot .corpo{font-size:15px;line-height:1.8}
 .pie{margin-top:calc(var(--spacing)*3);font-size:12px;color:var(--muted-foreground);
-  display:flex;align-items:center;gap:calc(var(--spacing)*3);flex-wrap:wrap;
-  font-family:var(--font-serif)}
+  display:flex;align-items:center;gap:calc(var(--spacing)*3);flex-wrap:wrap}
 .pie kbd{font-family:var(--font-mono);font-size:10px;background:var(--muted);
   border:1px solid var(--border);border-radius:4px;padding:1px 5px}
 .vuoto-chat{margin:auto;text-align:center;color:var(--muted-foreground);font-size:14px;
-  line-height:1.7;padding:calc(var(--spacing)*6);font-family:var(--font-serif)}
+  line-height:1.7;padding:calc(var(--spacing)*6)}
 
 /* --- frasi cliccabili ------------------------------------------------ */
 .frase{cursor:pointer;border-bottom:1px solid #e9ebee;padding:1px 0;transition:.12s}
@@ -137,23 +139,24 @@ body{background:var(--muted);color:var(--foreground);font-family:var(--font-sans
   padding:calc(var(--spacing)*5);box-shadow:var(--shadow-sm)}
 .titolo-p{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;font-weight:600;
   color:var(--muted-foreground);margin-bottom:calc(var(--spacing)*4)}
-.attesa{font-size:13.5px;color:var(--muted-foreground);line-height:1.7;
-  font-family:var(--font-serif)}
+.attesa{font-size:13.5px;color:var(--muted-foreground);line-height:1.7}
 .legenda{margin-top:calc(var(--spacing)*4);display:flex;flex-direction:column;gap:6px}
 .lg{display:flex;gap:calc(var(--spacing)*2);align-items:baseline;font-size:11.5px}
 .lg i{width:7px;height:7px;border-radius:50%;flex:none;transform:translateY(-1px)}
 .lg b{font-weight:600;font-style:normal}
-.lg span{color:var(--muted-foreground);font-family:var(--font-serif);font-size:12.5px}
+.lg span{color:var(--muted-foreground);font-size:12.5px}
 .badge{display:inline-flex;font-size:10.5px;font-weight:600;text-transform:uppercase;
   letter-spacing:.07em;padding:3px 9px;border-radius:999px;color:#fff}
 .badge[data-c=verde]{background:var(--st-verde)} .badge[data-c=blu]{background:var(--st-blu)}
 .badge[data-c=rosso]{background:var(--st-rosso)} .badge[data-c=arancione]{background:var(--st-arancione)}
-.conf{font-size:11px;color:var(--muted-foreground);margin-left:auto}
+.conf{font-size:10.5px;color:var(--muted-foreground);margin-left:auto;
+  text-transform:uppercase;letter-spacing:.1em}
+.conf b{color:var(--secondary);font-weight:600}
+.dato{color:var(--secondary);font-weight:600}
 .testa{display:flex;align-items:center;gap:calc(var(--spacing)*2);margin-bottom:calc(var(--spacing)*4)}
 .citata{font-size:13px;line-height:1.6;padding-left:calc(var(--spacing)*3);
   border-left:2px solid var(--border);margin-bottom:calc(var(--spacing)*3)}
-.motivo{font-size:13px;color:var(--muted-foreground);margin-bottom:calc(var(--spacing)*4);
-  font-family:var(--font-serif);line-height:1.65}
+.motivo{font-size:13px;color:var(--muted-foreground);margin-bottom:calc(var(--spacing)*4);line-height:1.65}
 .sez{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted-foreground);
   font-weight:600;margin-bottom:calc(var(--spacing)*2)}
 .prova{font-family:var(--font-mono);font-size:11px;line-height:1.75;background:var(--muted);
@@ -165,13 +168,13 @@ body{background:var(--muted);color:var(--foreground);font-family:var(--font-sans
 .prova mark[data-c=rosso]{background:var(--st-rosso-bg);box-shadow:inset 0 -2px 0 var(--st-rosso)}
 .fonte{margin-top:calc(var(--spacing)*3);border-top:1px solid var(--border);
   padding-top:calc(var(--spacing)*3)}
-.fonte-t{font-family:var(--font-serif);font-size:12.5px;line-height:1.55;
+.fonte-t{;font-size:12.5px;line-height:1.55;
   color:var(--foreground)}
 .fonte-f{font-family:var(--font-mono);font-size:10px;color:var(--muted-foreground);
   margin-top:4px;word-break:break-all}
 .blocco{margin-bottom:calc(var(--spacing)*4)}
 .nota{font-size:12.5px;border-radius:calc(var(--radius)/1.5);padding:calc(var(--spacing)*3);
-  line-height:1.6;font-family:var(--font-serif)}
+  line-height:1.6}
 .nota.tempo{background:var(--st-arancione-bg);border:1px solid #f0d4b6}
 .nota.scarto{background:var(--muted);border:1px solid var(--border);color:var(--muted-foreground)}
 .tl{margin-top:calc(var(--spacing)*2);font-family:var(--font-mono);font-size:10.5px}
@@ -183,7 +186,7 @@ body{background:var(--muted);color:var(--foreground);font-family:var(--font-sans
 .cuciti div{padding:2px 0;border-bottom:1px solid var(--border)}
 
 .piede{margin-top:calc(var(--spacing)*5);font-size:12.5px;color:var(--muted-foreground);
-  text-align:center;line-height:1.75;font-family:var(--font-serif);
+  text-align:center;line-height:1.75;
   max-width:840px;margin-left:auto;margin-right:auto}
 @media(max-width:980px){.cols{grid-template-columns:1fr}.pannello{position:static}
   .scena{grid-template-columns:1fr}.chat{height:auto;min-height:520px}}
@@ -242,8 +245,9 @@ function rispostaBot(i){
   const d=document.createElement('div');
   d.className='msg bot';
   d.innerHTML=`<div class="corpo">${out.join('')}</div>
-    <div class="pie"><kbd>clicca una frase</kbd> per vedere su cosa poggia
-    · ${c.affermazioni.length} affermazioni · ${c.passaggi_recuperati.length} passaggi recuperati</div>`;
+    <div class="pie"><kbd>clicca una frase</kbd> per vedere su cosa poggia ·
+    <span class="dato">${c.affermazioni.length}</span> affermazioni ·
+    <span class="dato">${c.passaggi_recuperati.length}</span> passaggi recuperati</div>`;
   $('#flusso').appendChild(d); scrolla();
 }
 
@@ -294,7 +298,7 @@ function pannello(){
   const a=CASI[casoSel].affermazioni[sel];
   let h=`<div class="card"><div class="testa">
     <span class="badge" data-c="${a.colore}">${a.stato.replace('_',' ')}</span>
-    <span class="conf">confidenza ${a.confidenza}</span></div>
+    <span class="conf">confidenza <b>${a.confidenza}</b></span></div>
     <div class="citata">${esc(a.testo)}</div>
     <div class="motivo">${esc(a.motivo)}</div>`;
   if(a.ancora){
@@ -318,7 +322,7 @@ function pannello(){
       ${esc(a.ancora_scartata)}</div></div>`;
   }
   if(!a.ancora&&a.passaggi&&a.passaggi.length){
-    h+=`<div class="blocco"><div class="sez">Le ${a.passaggi.length} fonti da cui è cucita</div>
+    h+=`<div class="blocco"><div class="sez">Le <span class="dato">${a.passaggi.length}</span> fonti da cui è cucita</div>
       <div class="cuciti">${a.passaggi.map(x=>`<div>${esc(x.citation)}</div>`).join('')}</div></div>`;
   }
   p.innerHTML=h+'</div>';
@@ -365,7 +369,7 @@ def main() -> int:
   <div class="chat">
     <div class="intestazione"><span class="pallino"></span>
       <b>Archivio Prometeo Cup</b>
-      <span>{info['chunks']} frammenti · 6 canali</span></div>
+      <span class="meta"><b class="dato">{info['chunks']}</b> frammenti · <b class="dato">6</b> canali</span></div>
     <div class="flusso" id="flusso">
       <div class="vuoto-chat" id="vuotoChat">
         Chiedi qualcosa sull'evento.<br>Se non sai da dove partire, usa un suggerimento.
