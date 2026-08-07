@@ -33,7 +33,13 @@ TOKENS = """
     --primary-foreground:#fff; --secondary:#527575; --destructive:#ef4444;
     --radius:.75rem; --spacing:.25rem;
     --font-mono:"JetBrains Mono",ui-monospace,monospace;
-    --font-sans:ui-monospace,monospace;
+    /* Geist Mono e' la seconda famiglia di Datapizza: sul loro sito e'
+       --font-sans e --font-heading, con JetBrains Mono come --font-mono.
+       Qui i ruoli sono invertiti di proposito, ma la famiglia va NOMINATA:
+       prima c'era solo la coda di ripiego (ui-monospace), quindi il browser
+       cadeva sul monospace di sistema e le due famiglie si somigliavano
+       troppo perche' la distinzione si vedesse. */
+    --font-sans:"Geist Mono","Geist Mono Fallback",ui-monospace,monospace;
     /* font-serif esiste nel canonical ma vale "serif": una bare generic stack,
        che la loro stessa guida marca come finding. Le parti discorsive si
        distinguono con peso, dimensione, colore e tracking, non con una
@@ -143,6 +149,10 @@ body{background:var(--muted);color:var(--foreground);font-family:var(--font-mono
 
 /* --- suggerimenti + input -------------------------------------------- */
 .sotto{border-top:1px solid var(--border);padding:calc(var(--spacing)*4) calc(var(--spacing)*5)}
+/* Senza etichetta i chip sembrano filtri o scorciatoie gia' attive: dire
+   cosa sono costa una riga. */
+.et-sugg{font-size:10px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted-foreground);margin-bottom:calc(var(--spacing)*2)}
 .chips{display:flex;gap:calc(var(--spacing)*2);flex-wrap:wrap;margin-bottom:calc(var(--spacing)*3)}
 .chip{background:var(--muted);border:1px solid var(--border);border-radius:999px;
   padding:calc(var(--spacing)*2) calc(var(--spacing)*3);font-family:inherit;font-size:11.5px;
@@ -259,8 +269,11 @@ body{background:var(--muted);color:var(--foreground);font-family:var(--font-mono
 .f-pie{border-top:1px solid var(--border);padding:calc(var(--spacing)*3) calc(var(--spacing)*5);
   font-family:var(--font-mono);font-size:10px;color:var(--muted-foreground)}
 
-/* --- materiale d'archivio e riferimenti: monospace di sistema --------- */
-.msg.io,.msg.bot .corpo,.prova,.f-corpo,.chip-f,.fonte-f,.f-pie,.tl,.cuciti,.dove{
+/* --- materiale d'archivio, riferimenti e spiegazioni: seconda famiglia ---
+   .motivo (il perche' del verdetto), .piede e .tenuta erano rimasti fuori:
+   sono spiegazioni, cioe' esattamente il ruolo per cui serve. */
+.msg.io,.msg.bot .corpo,.prova,.f-corpo,.chip-f,.fonte-f,.f-pie,.tl,.cuciti,.dove,
+.motivo,.piede,.tenuta,.pie{
   font-family:var(--font-sans)}
 .piede{margin-top:calc(var(--spacing)*5);font-size:12.5px;color:var(--muted-foreground);
   text-align:center;line-height:1.75;
@@ -626,7 +639,7 @@ def main() -> int:
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Prometeo Cup — chiedi all'archivio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>:root{{{TOKENS}}}{CSS}</style></head>
 <body><div class="wrap">
 
@@ -655,6 +668,7 @@ def main() -> int:
       </div>
     </div>
     <div class="sotto">
+      <div class="et-sugg">suggerimenti</div>
       <div class="chips" id="chips"></div>
       <div class="riga">
         <input id="campo" autocomplete="off" placeholder="Scrivi una domanda sull'archivio…">
