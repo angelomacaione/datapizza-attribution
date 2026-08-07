@@ -80,6 +80,21 @@ body{background:var(--muted);color:var(--foreground);font-family:var(--font-mono
   display:flex;align-items:center;gap:calc(var(--spacing)*3);flex-wrap:wrap}
 .pie kbd{font-family:var(--font-mono);font-size:10px;background:var(--muted);
   border:1px solid var(--border);border-radius:4px;padding:1px 5px}
+/* --- tenuta della risposta: sotto la risposta, non sulla singola frase ---
+   La confidenza di una frase e' un'informazione da approfondimento; quella
+   che conta leggendo e' se la risposta nel suo insieme regge. Sta qui, con
+   la composizione accanto: un totale che non si puo' scomporre e' proprio
+   la cosa che questa demo denuncia. */
+.tenuta{margin-top:calc(var(--spacing)*2);font-size:11px;color:var(--muted-foreground);
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;row-gap:5px}
+.tenuta .et{text-transform:uppercase;letter-spacing:.1em;font-size:10px}
+.tenuta .liv{color:var(--secondary);font-weight:600;letter-spacing:.06em;font-size:10.5px}
+.tenuta .comp{font-size:10.5px}
+.tenuta .comp b{font-weight:600}
+.tenuta .comp b[data-c=verde]{color:var(--st-verde)}
+.tenuta .comp b[data-c=blu]{color:var(--st-blu)}
+.tenuta .comp b[data-c=rosso]{color:var(--st-rosso)}
+.tenuta .comp b[data-c=arancione]{color:var(--st-arancione)}
 .avviso{background:var(--st-arancione-bg);border:1px solid #f0d4b6;border-radius:var(--radius);
   padding:calc(var(--spacing)*3) calc(var(--spacing)*4);font-size:12px;line-height:1.55;
   margin:calc(var(--spacing)*4) calc(var(--spacing)*5) 0}
@@ -329,6 +344,57 @@ function scrivendo(){
   $('#flusso').appendChild(d); scrolla();
 }
 
+// I pallini servono in due posti, quindi vivono qui e non dentro un solo
+// riquadro.
+const dots=n=>{let o='<span class="dots">';for(let k=0;k<4;k++)o+=`<i class="${k<n?'on':''}"></i>`;return o+'</span>'};
+
+// La confidenza non sta piu' sulla singola frase: sta sulla risposta, che e'
+// l'unita' che una persona legge e decide se usare.
+//
+// E non e' la media dei numeri che il giudice dichiara su se stesso: quelli
+// dicono quanto e' sicuro del proprio verdetto, non quanto regge la risposta —
+// un "fuori corpus" molto sicuro alzerebbe la media invece di abbassarla.
+// Qui pesano i verdetti, che sono la cosa che il sistema misura davvero, e la
+// composizione resta accanto al totale: un numero che non si puo' scomporre e'
+// esattamente cio' che questa demo denuncia.
+const PESO={ripescato:1, inferito:.6, fuori_corpus:.15, non_supportato:0};
+const NOME_STATO={ripescato:'ripescate', inferito:'inferite',
+                  non_supportato:'non supportate', fuori_corpus:'fuori corpus'};
+const COLORE_STATO={ripescato:'verde', inferito:'blu',
+                    non_supportato:'rosso', fuori_corpus:'arancione'};
+
+function tenuta(c){
+  const fatte=(c.affermazioni||[]).filter(a=>a.stato&&a.stato!=='non_verificata');
+  if(!fatte.length) return null;
+  let v=fatte.reduce((s,a)=>s+(PESO[a.stato]??.5),0)/fatte.length;
+  // Un'affermazione smentita non si compensa con due verdi: la risposta
+  // contiene comunque qualcosa che l'archivio nega, e va detto.
+  if(fatte.some(a=>a.stato==='non_supportato')) v=Math.min(v,.45);
+  return {liv: v>=.9?['ALTA',4]:v>=.6?['MEDIA',3]:v>=.3?['BASSA',2]:['MINIMA',1],
+          conteggi: Object.keys(PESO).map(s=>[s,fatte.filter(a=>a.stato===s).length])
+                          .filter(([,n])=>n),
+          fatte: fatte.length, tot: (c.affermazioni||[]).length};
+}
+
+function rigaTenuta(c){
+  const t=tenuta(c);
+  if(!t) return '<span class="et">tenuta della risposta</span> in verifica…';
+  const parti=t.conteggi.map(([s,n])=>
+    `<b data-c="${COLORE_STATO[s]}">${n}</b> ${NOME_STATO[s]}`).join(' \u00b7 ');
+  const restanti=t.tot-t.fatte;
+  // Un totale calcolato su meta' dei verdetti puo' crollare quando arrivano gli
+  // altri. Mostrarlo va bene — nasconderlo sarebbe peggio — ma deve dire di
+  // essere provvisorio, o la prima lettura resta quella sbagliata.
+  return `<span class="et">tenuta ${restanti?'provvisoria':'della risposta'}</span>${dots(t.liv[1])}`
+    +`<b class="liv">${t.liv[0]}</b>`
+    +`<span class="comp">${parti}${restanti?` \u00b7 ${restanti} in verifica`:''}</span>`;
+}
+
+function aggiornaTenuta(ci){
+  const el=document.querySelector(`.tenuta[data-ci="${ci}"]`);
+  if(el) el.innerHTML=rigaTenuta(CASI[ci]);
+}
+
 function rispostaBot(i){
   document.getElementById('typing')?.remove();
   const c=CASI[i];
@@ -347,7 +413,8 @@ function rispostaBot(i){
   d.innerHTML=`<div class="corpo">${out.join('')}</div>
     <div class="pie"><kbd>clicca una frase</kbd> per vedere su cosa poggia ·
     <span class="dato">${c.affermazioni.length}</span> affermazioni ·
-    <span class="dato">${c.passaggi_recuperati.length}</span> passaggi recuperati</div>`;
+    <span class="dato">${c.passaggi_recuperati.length}</span> passaggi recuperati</div>
+    <div class="tenuta" data-ci="${i}">${rigaTenuta(c)}</div>`;
   $('#flusso').appendChild(d); scrolla();
 }
 
@@ -422,6 +489,7 @@ async function verificaFrase(ci,ai){
   const el=document.querySelector(`.frase[data-ci="${ci}"][data-ai="${ai}"]`);
   if(el){el.classList.remove('attesa'); el.dataset.c=a.colore;
          el.onclick=()=>apri(ci,ai,el)}
+  aggiornaTenuta(ci);
   if(sel===ai&&casoSel===ci) pannello();
 }
 
@@ -510,11 +578,8 @@ function pannello(){
     return;
   }
   const a=CASI[casoSel].affermazioni[sel];
-  const dots=n=>{let o='<span class="dots">';for(let k=0;k<4;k++)o+=`<i class="${k<n?'on':''}"></i>`;return o+'</span>'};
-  const liv=a.confidenza>=.9?['ALTA',4]:a.confidenza>=.75?['MEDIA',3]:a.confidenza>=.5?['BASSA',2]:['MINIMA',1];
   let h=`<div class="card"><div class="testa">
-    <span class="badge" data-c="${a.colore}">${a.stato.replace('_',' ')}</span>
-    <span class="conf"><em>confidenza:</em>${dots(liv[1])}<b>${liv[0]}</b></span></div>
+    <span class="badge" data-c="${a.colore}">${a.stato.replace('_',' ')}</span></div>
     <div class="citata">${esc(a.testo)}</div>
     <div class="motivo">${esc(a.motivo)}</div>`;
 
