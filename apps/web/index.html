@@ -30,7 +30,12 @@
     --st-arancione:var(--chart-2);   --st-arancione-bg:#fdf2e9;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--muted);color:var(--foreground);font-family:var(--font-sans);
+/* Le due famiglie hanno ruoli opposti: JetBrains Mono (l'unica davvero
+   caricata) porta la voce del sistema — tesi, etichette, spiegazioni, note.
+   Il monospace di sistema porta tutto cio' che viene dall'archivio o lo
+   indirizza: la risposta sotto esame, le prove, i chip, gli offset. Cosi' si
+   distingue a colpo d'occhio cio' che dice l'archivio da cio' che dico io. */
+body{background:var(--muted);color:var(--foreground);font-family:var(--font-mono);
   font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
 .wrap{max-width:1200px;margin:0 auto;padding:calc(var(--spacing)*7)}
 
@@ -202,6 +207,10 @@ body{background:var(--muted);color:var(--foreground);font-family:var(--font-sans
 .f-corpo mark[data-c=blu]{background:var(--st-blu-bg);box-shadow:inset 0 -2px 0 var(--st-blu)}
 .f-pie{border-top:1px solid var(--border);padding:calc(var(--spacing)*3) calc(var(--spacing)*5);
   font-family:var(--font-mono);font-size:10px;color:var(--muted-foreground)}
+
+/* --- materiale d'archivio e riferimenti: monospace di sistema --------- */
+.msg.io,.msg.bot .corpo,.prova,.f-corpo,.chip-f,.fonte-f,.f-pie,.tl,.cuciti,.dove{
+  font-family:var(--font-sans)}
 .piede{margin-top:calc(var(--spacing)*5);font-size:12.5px;color:var(--muted-foreground);
   text-align:center;line-height:1.75;
   max-width:840px;margin-left:auto;margin-right:auto}
