@@ -54,6 +54,7 @@ class handler(BaseHTTPRequestHandler):
         }
 
         sys.path.insert(0, str(RADICE / "services" / "api"))
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
         esito["moduli"] = {}
         for nome in MODULI:
             esito["moduli"][nome] = _prova(

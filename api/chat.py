@@ -7,6 +7,17 @@ soprattutto l'utente vede la risposta subito e i verdetti arrivare dopo,
 invece di fissare uno spinner per quaranta secondi.
 """
 
+import sys
+from pathlib import Path
+
+# Vercel non esegue la funzione dalla cartella api/: il suo involucro sta in
+# /var/task e da li' parte tutto, quindi la cartella di QUESTO file non e' in
+# sys.path e `import _comune` muore con ModuleNotFoundError. Muore al primo
+# livello del modulo — prima che qualsiasi try possa intercettarlo — e la
+# funzione crolla muta: FUNCTION_INVOCATION_FAILED, cinquecento senza corpo.
+# In locale non si vedeva perche' gli script partivano da dentro api/.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 from http.server import BaseHTTPRequestHandler
 
 from _comune import carica, leggi, risposta
