@@ -10,9 +10,33 @@ from http.server import BaseHTTPRequestHandler
 
 from _comune import carica, leggi, risposta
 
+# Gli import pesanti si fanno all'avvio dell'istanza, non dentro il try di
+# do_POST. Farli li' dentro ha un difetto che si paga caro: se l'import
+# fallisce, BudgetEsaurito non viene mai definito, e Python va a valutare
+# `except BudgetEsaurito` trovando un nome non assegnato. L'eccezione della
+# clausola except sostituisce quella vera e la funzione muore muta —
+# FUNCTION_INVOCATION_FAILED, cinquecento senza corpo, nessuna traccia.
+# Qui l'errore d'avvio viene conservato e restituito come JSON leggibile.
+AVVIO = None
+try:
+    from rag.budget import BudgetEsaurito
+    from rag.retrieve import Hit
+    from rag.verify import verifica_affermazione
+except BaseException as _e:  # noqa: BLE001 - qualunque cosa, purche' si legga
+    import traceback as _tb
+    AVVIO = {"errore": f"{type(_e).__name__}: {_e}",
+             "traccia": _tb.format_exc().splitlines()[-8:]}
+
+    class BudgetEsaurito(Exception):
+        motivo = "modulo non caricato"
+
+
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
+        if AVVIO:
+            return risposta(self, {"errore": "avvio della funzione fallito",
+                                   **AVVIO}, 500)
         try:
             corpo = leggi(self)
             frase = (corpo.get("frase") or "").strip()
@@ -20,9 +44,6 @@ class handler(BaseHTTPRequestHandler):
             if not frase or not ids:
                 return risposta(self, {"errore": "frase o chunk_ids mancanti"}, 400)
 
-            from rag.budget import BudgetEsaurito
-            from rag.retrieve import Hit
-            from rag.verify import verifica_affermazione
 
             stato = carica()
             per_id = {c.id: c for c in stato["store"].all_chunks()}

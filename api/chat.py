@@ -11,9 +11,32 @@ from http.server import BaseHTTPRequestHandler
 
 from _comune import carica, leggi, risposta
 
+# Gli import pesanti si fanno all'avvio dell'istanza, non dentro il try di
+# do_POST. Farli li' dentro ha un difetto che si paga caro: se l'import
+# fallisce, BudgetEsaurito non viene mai definito, e Python va a valutare
+# `except BudgetEsaurito` trovando un nome non assegnato. L'eccezione della
+# clausola except sostituisce quella vera e la funzione muore muta —
+# FUNCTION_INVOCATION_FAILED, cinquecento senza corpo, nessuna traccia.
+# Qui l'errore d'avvio viene conservato e restituito come JSON leggibile.
+AVVIO = None
+try:
+    from rag.budget import BudgetEsaurito, protetta
+    from rag.llm import estensore
+except BaseException as _e:  # noqa: BLE001 - qualunque cosa, purche' si legga
+    import traceback as _tb
+    AVVIO = {"errore": f"{type(_e).__name__}: {_e}",
+             "traccia": _tb.format_exc().splitlines()[-8:]}
+
+    class BudgetEsaurito(Exception):
+        motivo = "modulo non caricato"
+
+
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
+        if AVVIO:
+            return risposta(self, {"errore": "avvio della funzione fallito",
+                                   **AVVIO}, 500)
         try:
             corpo = leggi(self)
             domanda = (corpo.get("domanda") or "").strip()
@@ -21,9 +44,6 @@ class handler(BaseHTTPRequestHandler):
                 return risposta(self, {"errore": "domanda vuota"}, 400)
             if len(domanda) > 500:
                 return risposta(self, {"errore": "domanda troppo lunga"}, 400)
-
-            from rag.budget import BudgetEsaurito, protetta
-            from rag.llm import estensore
 
             stato = carica()
             hits = stato["retriever"].search(domanda, k=8)
