@@ -38,6 +38,15 @@ def pick_embedder(texts: list[str]):
     build. Quale dei due sia stato usato finisce in build-info.json, cosi' non
     resta ambiguo cosa c'e' dentro l'indice.
     """
+    # Se e' configurato un fornitore remoto, e' quello che comanda: l'indice
+    # DEVE nascere dallo stesso modello che poi interroghera' la produzione.
+    fornitore = os.environ.get("EMBEDDING_PROVIDER", "").lower()
+    if fornitore in ("voyage", "openai"):
+        from rag.embedder_api import ApiEmbedder
+        emb = ApiEmbedder(fornitore)
+        emb.embed("prova di raggiungibilita'")
+        return emb, emb.model_name
+
     force = os.environ.get("EMBEDDER", "").lower()
     if force != "tfidf":
         try:

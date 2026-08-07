@@ -80,6 +80,11 @@ body{background:var(--muted);color:var(--foreground);font-family:var(--font-mono
   display:flex;align-items:center;gap:calc(var(--spacing)*3);flex-wrap:wrap}
 .pie kbd{font-family:var(--font-mono);font-size:10px;background:var(--muted);
   border:1px solid var(--border);border-radius:4px;padding:1px 5px}
+.avviso{background:var(--st-arancione-bg);border:1px solid #f0d4b6;border-radius:var(--radius);
+  padding:calc(var(--spacing)*3) calc(var(--spacing)*4);font-size:12px;line-height:1.55;
+  margin:calc(var(--spacing)*4) calc(var(--spacing)*5) 0}
+.avviso b{color:var(--st-arancione)}
+.pallino.spento{background:var(--st-arancione)}
 .vuoto-chat{margin:auto;text-align:center;color:var(--muted-foreground);font-size:14px;
   line-height:1.7;padding:calc(var(--spacing)*6)}
 
@@ -87,6 +92,11 @@ body{background:var(--muted);color:var(--foreground);font-family:var(--font-mono
 .frase{cursor:pointer;border-bottom:1px solid #e9ebee;padding:1px 0;transition:.12s}
 .frase:hover{background:var(--muted);border-bottom-color:var(--primary)}
 .frase.sel{border-bottom:2px solid;padding-bottom:0}
+/* mentre il giudice valuta: la frase c'e' gia' ma non ha ancora un verdetto.
+   Nessun colore, perche' un colore provvisorio e' un'informazione falsa. */
+.frase.attesa{border-bottom:1px dashed var(--muted-foreground);opacity:.65;
+  animation:pulsa 1.4s ease-in-out infinite;cursor:default}
+@keyframes pulsa{0%,100%{opacity:.5}50%{opacity:.85}}
 .frase.sel[data-c=verde]{background:var(--st-verde-bg);border-color:var(--st-verde)}
 .frase.sel[data-c=blu]{background:var(--st-blu-bg);border-color:var(--st-blu)}
 .frase.sel[data-c=rosso]{background:var(--st-rosso-bg);border-color:var(--st-rosso)}
@@ -324,7 +334,9 @@ function rispostaBot(i){
   c.affermazioni.forEach((a,k)=>{
     const idx=resto.indexOf(a.testo); if(idx<0) return;
     out.push(esc(resto.slice(0,idx)));
-    out.push(`<span class="frase" data-c="${a.colore}" onclick="apri(${i},${k},this)">${esc(a.testo)}</span>`);
+    const inAttesa=!a.stato;
+    out.push(`<span class="frase${inAttesa?' attesa':''}" data-ci="${i}" data-ai="${k}"`
+      +` data-c="${a.colore||''}"${inAttesa?'':` onclick="apri(${i},${k},this)"`}>${esc(a.testo)}</span>`);
     resto=resto.slice(idx+a.testo.length);
   });
   out.push(esc(resto));
@@ -348,11 +360,105 @@ function nonSo(){
   $('#flusso').appendChild(d); scrolla();
 }
 
-function invia(testo){
+// L'endpoint live non e' ancora pubblicato: finche' API_ATTIVA resta false la
+// chat usa solo le risposte precalcolate. Il percorso di discesa pero' e' gia'
+// cablato e ispezionabile, cosi' quando l'endpoint arriva non c'e' da inventare
+// il comportamento sotto pressione: al primo 402 o 429 si passa allo statico e
+// lo si dichiara, invece di mostrare un errore o restare a girare a vuoto.
+// L'endpoint e' pubblicato: la chat interroga l'archivio davvero. Se manca la
+// chiave, se il budget finisce o se la funzione non risponde, si scende alle
+// quattro risposte precalcolate dicendolo.
+const API_ATTIVA=true;
+let statico=false;
+
+function passaAStatico(motivo){
+  if(statico) return; statico=true;
+  document.querySelector('.pallino')?.classList.add('spento');
+  const d=document.createElement('div');
+  d.className='avviso';
+  d.innerHTML=`<b>Budget della demo esaurito${motivo?' — '+esc(motivo):''}.</b>
+    Da qui in avanti rispondo solo con le quattro risposte gia' calcolate: quelle
+    restano vere e verificate, ma le domande nuove non partono piu' verso l'archivio.`;
+  $('#flusso').before(d);
+}
+
+// Lo stesso taglio in affermazioni che fa il verificatore lato server: righe
+// di elenco e di tabella valgono una affermazione, il resto va a frasi.
+function spezza(testo){
+  const fuori=[];
+  // regex invece di '\n' in una stringa: l'escaping fra Python e JS
+  // aveva prodotto una vera andata a capo dentro una stringa, cioe' un
+  // errore di sintassi che faceva fallire l'intero script
+  testo.split(/[\r\n]+/).forEach(riga=>{
+    riga=riga.trim(); if(!riga) return;
+    if(/^([-*•]|\d+[.)]|\|)/.test(riga)){fuori.push(riga.replace(/^[-*•]/,'').trim());return}
+    riga.split(/(?<=[.!?])\s+(?=[A-ZÀÈÉÌÒÙ0-9])/).forEach(f=>{
+      f=f.trim(); if(f.length>15) fuori.push(f);
+    });
+  });
+  return fuori;
+}
+
+// Ogni frase ha la sua richiesta, lanciate insieme: l'utente vede i verdetti
+// arrivare uno alla volta invece di aspettare che siano pronti tutti.
+async function verificaFrase(ci,ai){
+  const c=CASI[ci], a=c.affermazioni[ai];
+  try{
+    const r=await fetch('/api/verify',{method:'POST',
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify({frase:a.testo, chunk_ids:c.chunk_ids})});
+    if(r.status===402){passaAStatico('credito finito');return}
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const v=await r.json();
+    if(v.esaurito){passaAStatico(v.motivo);return}
+    if(v.errore) throw new Error(v.errore);
+    Object.assign(a, v);
+  }catch(e){
+    a.stato='non_verificata'; a.colore='grigio';
+    a.motivo='Verifica non riuscita: '+e.message; a.confidenza=0;
+  }
+  const el=document.querySelector(`.frase[data-ci="${ci}"][data-ai="${ai}"]`);
+  if(el){el.classList.remove('attesa'); el.dataset.c=a.colore;
+         el.onclick=()=>apri(ci,ai,el)}
+  if(sel===ai&&casoSel===ci) pannello();
+}
+
+async function chiediAllApi(q){
+  const r=await fetch('/api/chat',{method:'POST',
+    headers:{'content-type':'application/json'},body:JSON.stringify({domanda:q})});
+  if(r.status===402||r.status===429){passaAStatico(r.status===402?'credito finito':'troppe richieste');return null}
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const dati=await r.json();
+  if(dati.esaurito){passaAStatico(dati.motivo);return null}
+  return dati;
+}
+
+async function invia(testo){
   if(inCorso) return;
   const q=(testo??$('#campo').value).trim(); if(!q) return;
   $('#campo').value=''; $('#vuotoChat')?.remove();
   inCorso=true; bolla(q); scrivendo();
+
+  if(API_ATTIVA&&!statico){
+    try{
+      const vivo=await chiediAllApi(q);
+      if(vivo){
+        vivo.affermazioni=spezza(vivo.risposta).map(t=>({testo:t}));
+        CASI.push(vivo);
+        const ci=CASI.length-1;
+        rispostaBot(ci);
+        inCorso=false;
+        vivo.affermazioni.forEach((_,k)=>verificaFrase(ci,k));
+        return;
+      }
+    }catch(e){
+      // un guasto vero non e' un budget finito: lo si dice com'e'
+      document.getElementById('typing')?.remove();
+      const d=document.createElement('div'); d.className='msg bot';
+      d.innerHTML=`<div class="corpo" style="color:var(--st-rosso)">L'archivio non risponde (${esc(e.message)}).</div>`;
+      $('#flusso').appendChild(d); inCorso=false; return;
+    }
+  }
   const i=cerca(q);
   setTimeout(()=>{ i===null?nonSo():rispostaBot(i); inCorso=false; }, 620);
 }

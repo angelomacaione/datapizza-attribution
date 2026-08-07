@@ -1,0 +1,9 @@
+# Dipendenze della sola funzione serverless: deliberatamente magre.
+# Fuori restano fastembed, onnxruntime, scikit-learn e il metapacchetto
+# datapizza-ai (che tira dentro qdrant, openai e opentelemetry): servono a
+# costruire l'indice, non a servirlo. L'embedding a runtime passa da API.
+datapizza-ai-core>=0.1.0
+datapizza-ai-clients-anthropic>=0.0.8
+numpy>=1.26
+rank-bm25>=0.2.2
+pydantic>=2

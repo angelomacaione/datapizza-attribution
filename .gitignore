@@ -1,7 +1,10 @@
 # Artefatti rigenerabili dell'indice.
 # I chunk sì: sono piccoli e permettono di clonare e far girare senza build.
 # I vettori no: dipendono dal modello, pesano, e si ricostruiscono in un comando.
-index/*.vectors.npy
+# I vettori NON sono piu' ignorati: la funzione serverless li legge a runtime,
+# e se non sono nel repository su Vercel non arrivano. Sono 900 KB, il prezzo
+# giusto per un deploy che funziona senza passaggi manuali.
+# index/*.vectors.npy
 index/tfidf.pkl
 index/probe-queries.json
 # cartella d'appoggio creata per aggirare la cache del ponte: contiene copie
