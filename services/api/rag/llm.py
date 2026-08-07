@@ -61,6 +61,8 @@ La distinzione fra "contraddetto" e "non_trattato" e' la piu' importante e la pi
 
 Nel dubbio scegli "non_trattato". Un falso "supportato" e' l'errore piu' grave che puoi commettere.
 
+Il campo "motivo" e' UNA SOLA FRASE, massimo venticinque parole. Deve dire la ragione del verdetto, non riassumere i passaggi. Chi legge ha gia' davanti la citazione: non ripetergliela.
+
 CONTROLLO TEMPORALE, da fare dopo aver deciso l'esito.
 
 Ogni passaggio ha una data. Un archivio racconta cose che cambiano: un ruolo viene riassegnato, una versione sostituita, una decisione ribaltata, un numero aggiornato. Puo' quindi capitare che l'affermazione sia sostenuta da un passaggio, e che un passaggio PIU' RECENTE dica qualcosa di diverso sullo stesso identico fatto.

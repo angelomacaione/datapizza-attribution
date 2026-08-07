@@ -53,7 +53,7 @@ class VerdettoGiudice(BaseModel):
     citazione: str = Field(
         default="",
         description="frammento verbatim che sostiene l'affermazione, vuoto se non esiste")
-    motivo: str = Field(description="una frase sul perche', in italiano")
+    motivo: str = Field(description="UNA frase, massimo 25 parole, sul perche' del verdetto")
     confidenza: float = Field(ge=0.0, le=1.0, description="quanto sei sicuro dell'esito")
     # --- controllo temporale, secondario rispetto al verdetto ---------------
     conflitto_temporale: bool = Field(
@@ -72,7 +72,7 @@ class EsitoRevisione(BaseModel):
     """Il frammento che mostreremmo all'utente regge da solo?"""
     sufficiente: bool = Field(
         description="il frammento, isolato, giustifica il verdetto emesso")
-    motivo: str = Field(description="una frase sul perche', in italiano")
+    motivo: str = Field(description="UNA frase, massimo 25 parole, sul perche' del verdetto")
 
 
 @dataclass
@@ -437,7 +437,10 @@ def verifica_affermazione(frase: str, hits: list[Hit]) -> Affermazione:
             m = hits[n - 1].chunk.metadata or {}
             usati.append({"citation": m.get("citation", ""),
                           "register": m.get("register", ""),
-                          "chunk_id": hits[n - 1].chunk.id})
+                          "chunk_id": hits[n - 1].chunk.id,
+                          # servono al popup per aprire il file al punto giusto
+                          "file": m.get("source_file", ""),
+                          "start": m.get("start"), "end": m.get("end")})
 
     return Affermazione(testo=frase, stato=stato, confidenza=v.confidenza,
                         motivo=v.motivo, ancora=ancora, passaggi=usati,

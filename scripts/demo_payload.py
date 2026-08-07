@@ -15,6 +15,7 @@ Scrive apps/web/demo-data.json.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -34,6 +35,40 @@ CORPUS = ROOT / "corpus" / "prometeo-cup" / "channels"
 # una risposta pulita, una che inciampa in una contraddizione dell'archivio,
 # una che aggrega numeri che cambiano nel tempo, una su cui l'archivio tace.
 DOMANDE = [0, 20, 17, 21]
+
+
+CANALE_BREVE = {"email-threads": "EMAIL", "remote-meetings": "MEETING",
+                "phone-calls": "CHIAMATA", "colleague-chats": "CHAT",
+                "llm-chats": "LLM", "web-searches": "RICERCHE"}
+
+MESI_BREVI = {1: "GEN", 2: "FEB", 3: "MAR", 4: "APR", 5: "MAG", 6: "GIU",
+              7: "LUG", 8: "AGO", 9: "SET", 10: "OTT", 11: "NOV", 12: "DIC"}
+
+
+def etichetta(meta: dict) -> str:
+    """Una fonte in tre gettoni invece che in tre righe.
+
+    Il percorso completo non sparisce: si legge nel popup. Qui serve solo a
+    riconoscere la fonte con un'occhiata, come i chip di Compass.
+    """
+    canale = CANALE_BREVE.get(meta.get("channel", ""), (meta.get("channel") or "").upper())
+    pezzi = [canale]
+    sezione = meta.get("section") or ""
+    m = re.search(r"Thread #(\d+)", sezione)
+    if m:
+        pezzi.append(f"#{m.group(1)}")
+    else:
+        pulita = re.sub(r"^[\W\d.]+", "", sezione).split("—")[0].strip()
+        if pulita:
+            pezzi.append(pulita[:22].upper())
+    ts = meta.get("timestamp") or ""
+    if len(ts) >= 10:
+        try:
+            _, mm, dd = ts[:10].split("-")
+            pezzi.append(f"{int(dd)} {MESI_BREVI[int(mm)]}")
+        except (ValueError, KeyError):
+            pass
+    return " · ".join(pezzi)
 
 
 def estratto(source_file: str, start: int, end: int, margine: int = 260) -> dict:
@@ -74,7 +109,9 @@ def main() -> int:
                 "colore": a.colore,
                 "confidenza": round(a.confidenza, 2),
                 "motivo": a.motivo,
-                "passaggi": a.passaggi,
+                "passaggi": [dict(x, chip=etichetta(next(
+                    (h.chunk.metadata or {} for h in hits if h.chunk.id == x["chunk_id"]), {})))
+                    for x in a.passaggi],
                 "ancora_scartata": a.ancora_scartata,
                 "citazione_fantasma": a.citazione_fantasma,
             }
@@ -82,6 +119,8 @@ def main() -> int:
                 riga["ancora"] = {
                     "citazione": a.ancora.citazione,
                     "dove": a.ancora.citation_label,
+                    "chip": etichetta(next((h.chunk.metadata or {} for h in hits
+                                            if h.chunk.id == a.ancora.chunk_id), {})),
                     "file": a.ancora.source_file,
                     "inizio": a.ancora.inizio_nel_file,
                     "fine": a.ancora.fine_nel_file,
@@ -109,10 +148,14 @@ def main() -> int:
             ],
         })
 
+    # I canali per intero: il popup deve poter aprire il file e farci scorrere
+    # dentro, non mostrare la finestrella che ho deciso io.
+    sorgenti = {p.name: p.read_text(encoding="utf-8") for p in sorted(CORPUS.glob("*.md"))}
     info = json.loads((index_dir / "build-info.json").read_text(encoding="utf-8"))
     out = ROOT / "apps" / "web" / "demo-data.json"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps({"indice": info, "casi": fuori},
+    out.write_text(json.dumps({"indice": info, "casi": fuori, "sorgenti": sorgenti,
+                               },
                               ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"\nscritto {out} ({out.stat().st_size / 1024:.0f} KB)")
     return 0

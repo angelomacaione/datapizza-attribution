@@ -185,6 +185,47 @@ body{background:var(--muted);color:var(--foreground);font-family:var(--font-sans
 .cuciti{font-size:11px;font-family:var(--font-mono);color:var(--muted-foreground);line-height:1.7}
 .cuciti div{padding:2px 0;border-bottom:1px solid var(--border)}
 
+
+/* --- fonte come chip, non come paragrafo (pattern Compass) ----------- */
+.chip-f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;
+  border:1px solid var(--border);border-radius:5px;padding:3px 8px;cursor:pointer;
+  background:var(--card);color:var(--muted-foreground);transition:.15s;display:inline-block;
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+.chip-f:hover{border-color:var(--primary);color:var(--foreground)}
+.chip-f.cucita{border-style:dashed}
+.chip-riga{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.mini-leg{font-size:9.5px;color:var(--muted-foreground);text-transform:none;letter-spacing:0;
+  margin-left:6px;font-weight:400}
+/* pallini di confidenza al posto del numero */
+.dots{display:inline-flex;gap:3px;margin-right:5px;vertical-align:1px}
+.dots i{width:5px;height:5px;border-radius:50%;background:var(--border)}
+.dots i.on{background:var(--secondary)}
+/* prova cucita: tratteggio invece di pieno, la texture dice quanto e' diretta */
+.prova mark.cucita{background:transparent;box-shadow:none;
+  border-bottom:2px dashed var(--st-blu)}
+
+/* --- popup di approfondimento ---------------------------------------- */
+.velo{position:fixed;inset:0;background:rgba(17,24,39,.45);display:flex;align-items:center;
+  justify-content:center;z-index:50;padding:calc(var(--spacing)*6)}
+.velo[hidden]{display:none}
+.finestra{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow-lg);max-width:860px;width:100%;max-height:88vh;
+  display:flex;flex-direction:column}
+.f-testa{display:flex;align-items:flex-start;gap:calc(var(--spacing)*3);
+  padding:calc(var(--spacing)*4) calc(var(--spacing)*5);border-bottom:1px solid var(--border)}
+.f-testa h3{font-size:13px;font-weight:600;margin-bottom:3px}
+.f-testa p{font-size:11px;color:var(--muted-foreground);line-height:1.5}
+.f-x{margin-left:auto;background:none;border:1px solid var(--border);border-radius:6px;
+  width:26px;height:26px;cursor:pointer;color:var(--muted-foreground);font-family:inherit;flex:none}
+.f-x:hover{border-color:var(--primary);color:var(--foreground)}
+.f-corpo{overflow:auto;padding:calc(var(--spacing)*5);font-family:var(--font-mono);
+  font-size:11.5px;line-height:1.8;white-space:pre-wrap;word-break:break-word}
+.f-corpo mark{background:var(--st-verde-bg);box-shadow:inset 0 -2px 0 var(--st-verde);
+  padding:2px 0;scroll-margin:120px}
+.f-corpo mark[data-c=rosso]{background:var(--st-rosso-bg);box-shadow:inset 0 -2px 0 var(--st-rosso)}
+.f-corpo mark[data-c=blu]{background:var(--st-blu-bg);box-shadow:inset 0 -2px 0 var(--st-blu)}
+.f-pie{border-top:1px solid var(--border);padding:calc(var(--spacing)*3) calc(var(--spacing)*5);
+  font-family:var(--font-mono);font-size:10px;color:var(--muted-foreground)}
 .piede{margin-top:calc(var(--spacing)*5);font-size:12.5px;color:var(--muted-foreground);
   text-align:center;line-height:1.75;
   max-width:840px;margin-left:auto;margin-right:auto}
@@ -296,40 +337,76 @@ function pannello(){
     return;
   }
   const a=CASI[casoSel].affermazioni[sel];
+  const dots=n=>{let o='<span class="dots">';for(let k=0;k<4;k++)o+=`<i class="${k<n?'on':''}"></i>`;return o+'</span>'};
+  const liv=a.confidenza>=.9?['ALTA',4]:a.confidenza>=.75?['MEDIA',3]:a.confidenza>=.5?['BASSA',2]:['MINIMA',1];
   let h=`<div class="card"><div class="testa">
     <span class="badge" data-c="${a.colore}">${a.stato.replace('_',' ')}</span>
-    <span class="conf">confidenza <b>${a.confidenza}</b></span></div>
+    <span class="conf">${dots(liv[1])}<b>${liv[0]}</b></span></div>
     <div class="citata">${esc(a.testo)}</div>
     <div class="motivo">${esc(a.motivo)}</div>`;
+
   if(a.ancora){
     const k=a.ancora.contesto||{};
-    h+=`<div class="blocco"><div class="sez">Il passaggio, nel suo contesto</div>
-      <div class="prova"><span class="ctx">${esc(k.prima||'')}</span><mark data-c="${a.colore}">${esc(k.prova||a.ancora.citazione)}</mark><span class="ctx">${esc(k.dopo||'')}</span></div>
-      <div class="fonte"><div class="sez">Fonte</div>
-        <div class="fonte-t">${esc(a.ancora.dove)}</div>
-        <div class="fonte-f">${esc(a.ancora.file)} · caratteri ${a.ancora.inizio}–${a.ancora.fine}</div>
-      </div></div>`;
+    const cucita=a.colore==='blu';
+    h+=`<div class="blocco"><div class="sez">La prova
+        <span class="mini-leg">${cucita?'segnale cucito':'frammento letterale'}</span></div>
+      <div class="prova"><span class="ctx">${esc(k.prima||'')}</span><mark data-c="${a.colore}" class="${cucita?'cucita':''}">${esc(k.prova||a.ancora.citazione)}</mark><span class="ctx">${esc(k.dopo||'')}</span></div>
+      <div class="chip-riga"><button class="chip-f" onclick="apriFonte(${casoSel},${sel})"
+        title="${esc(a.ancora.dove)}">${esc(a.ancora.chip||'FONTE')} ↗</button></div></div>`;
   }
   if(a.conflitto){
     h+=`<div class="blocco"><div class="nota tempo"><b>L'archivio è cambiato nel tempo.</b><br>
-      ${esc(a.conflitto.nota)}<div class="sez" style="margin-top:10px">Le due fonti in conflitto</div><div class="tl">
-      <div><b>${esc(a.conflitto.prima.quando||'')}</b><span>${esc(a.conflitto.prima.dove||'')}</span></div>
-      <div><b>${esc(a.conflitto.dopo.quando||'')}</b><span>${esc(a.conflitto.dopo.dove||'')}</span></div>
+      ${esc(a.conflitto.nota)}<div class="tl">
+      <div><b>${esc((a.conflitto.prima.quando||'').slice(0,10))}</b><span>${esc((a.conflitto.prima.dove||'').split('>')[0])}</span></div>
+      <div><b>${esc((a.conflitto.dopo.quando||'').slice(0,10))}</b><span>${esc((a.conflitto.dopo.dove||'').split('>')[0])}</span></div>
       </div></div></div>`;
   }
   if(a.ancora_scartata){
-    h+=`<div class="blocco"><div class="nota scarto"><b>Una prova è stata scartata.</b><br>
-      ${esc(a.ancora_scartata)}</div></div>`;
+    h+=`<div class="blocco"><div class="nota scarto"><b>Prova scartata dal revisore.</b><br>
+      ${esc(a.ancora_scartata.split(' — ').pop())}</div></div>`;
   }
-  if(!a.ancora&&a.passaggi&&a.passaggi.length){
-    h+=`<div class="blocco"><div class="sez">Le <span class="dato">${a.passaggi.length}</span> fonti da cui è cucita</div>
-      <div class="cuciti">${a.passaggi.map(x=>`<div>${esc(x.citation)}</div>`).join('')}</div></div>`;
+  // la fonte gia' esibita sopra non si ripete qui sotto
+  const altre=(a.passaggi||[]).filter(x=>!a.ancora||x.chunk_id!==a.ancora.chunk_id);
+  if(altre.length){
+    h+=`<div class="blocco"><div class="sez">${a.ancora?'Altre fonti':'Fonti'}
+        <span class="mini-leg">${a.ancora?'':'nessuna lo dice alla lettera'}</span></div>
+      <div class="chip-riga">${altre.map((x,j)=>
+        `<button class="chip-f cucita" onclick="apriPassaggio(${casoSel},${sel},${a.passaggi.indexOf(x)})"
+          title="${esc(x.citation)}">${esc(x.chip||'FONTE')} ↗</button>`).join('')}</div></div>`;
   }
   p.innerHTML=h+'</div>';
 }
 
 // I suggerimenti si legano con un listener, non con onclick inline: la domanda
 // contiene apostrofi e virgolette che dentro un attributo HTML spezzano tutto.
+
+// --- approfondimento: apre il canale per intero ------------------------
+// Il popup non mostra la finestrella che ho deciso io: apre il file, ci
+// scorre dentro fino al passaggio e lo evidenzia. Chi vuole leggere cosa
+// c'era prima e cosa e' successo dopo puo' farlo senza chiedere permesso.
+function mostraFile(file, inizio, fine, colore, titolo, sotto){
+  const testo=DATI.sorgenti[file];
+  if(!testo){alert('Sorgente non incorporata: '+file);return}
+  const pre=esc(testo.slice(0,inizio)), mid=esc(testo.slice(inizio,fine)), post=esc(testo.slice(fine));
+  $('#velo').hidden=false;
+  $('#f-titolo').textContent=titolo;
+  $('#f-sotto').textContent=sotto;
+  $('#f-pie').textContent=`${file} · caratteri ${inizio}–${fine} · ${testo.length} in tutto`;
+  $('#f-corpo').innerHTML=pre+`<mark id="qui" data-c="${colore}">${mid}</mark>`+post;
+  document.getElementById('qui')?.scrollIntoView({block:'center'});
+}
+function apriFonte(ci,ai){
+  const a=CASI[ci].affermazioni[ai], n=a.ancora;
+  mostraFile(n.file, n.inizio, n.fine, a.colore, n.chip||'Fonte', n.dove);
+}
+function apriPassaggio(ci,ai,j){
+  const a=CASI[ci].affermazioni[ai], x=a.passaggi[j];
+  if(x.start==null){alert('Coordinate non disponibili per questo passaggio');return}
+  mostraFile(x.file, x.start, x.end, 'blu', x.chip||'Fonte', x.citation);
+}
+function chiudi(){$('#velo').hidden=true}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')chiudi()});
+
 $('#chips').innerHTML=CASI.map((c,i)=>
   `<button class="chip" data-i="${i}">${esc(c.domanda)}</button>`).join('');
 document.querySelectorAll('.chip').forEach(b=>
@@ -394,6 +471,18 @@ def main() -> int:
   Demo statica: le risposte precalcolate sono quattro. Lo stato arancione non compare in
   nessuna delle quattro — quando l'archivio tace, chi risponde lo dichiara invece di
   riempire il vuoto.
+</div>
+
+
+<div class="velo" id="velo" hidden onclick="if(event.target===this)chiudi()">
+  <div class="finestra">
+    <div class="f-testa">
+      <div><h3 id="f-titolo"></h3><p id="f-sotto"></p></div>
+      <button class="f-x" onclick="chiudi()">✕</button>
+    </div>
+    <div class="f-corpo" id="f-corpo"></div>
+    <div class="f-pie" id="f-pie"></div>
+  </div>
 </div>
 
 </div>
