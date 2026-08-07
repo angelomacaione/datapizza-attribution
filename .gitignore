@@ -4,6 +4,9 @@
 index/*.vectors.npy
 index/tfidf.pkl
 index/probe-queries.json
+# cartella d'appoggio creata per aggirare la cache del ponte: contiene copie
+# dei vettori e delle domande, tutta roba rigenerabile
+index/_tmp/
 
 __pycache__/
 *.py[cod]
