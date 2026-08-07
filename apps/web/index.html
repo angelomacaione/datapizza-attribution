@@ -180,7 +180,7 @@ body{background:var(--muted);color:var(--foreground);font-family:var(--font-mono
 
 
 /* --- fonte come chip, non come paragrafo (pattern Compass) ----------- */
-.chip-f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;
+.chip-f{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.06em;text-transform:none;
   border:1px solid var(--border);border-radius:5px;padding:3px 8px;cursor:pointer;
   background:var(--card);color:var(--muted-foreground);transition:.15s;display:inline-block;
   max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
@@ -470,6 +470,26 @@ function apri(ci,ai,el){
   el.classList.add('sel'); casoSel=ci; sel=ai; pannello();
 }
 
+// I chip dicevano tutti "FONTE": una parola che non distingue una fonte
+// dall'altra, cioe' l'unica cosa che dovevano fare. Il primo gettone diventa
+// il nome del file, e dopo viene cio' che lo restringe — il numero del thread
+// o la data — quando c'e'. Il percorso completo resta nel titolo e nel popup:
+// il chip serve a riconoscere, non a descrivere.
+// le citazioni scrivono la data in due modi — "12 novembre" e "23 ott" —
+// quindi il ritaglio accetta sia il mese per esteso sia l'abbreviazione.
+const MESI_IT=/(\d{1,2})\s+(gen|feb|mar|apr|mag|giu|lug|ago|set|ott|nov|dic)[a-z]*/i;
+function etichettaFonte(citation,file){
+  const pezzi=[];
+  const nome=(file||'').split('/').pop();
+  if(nome) pezzi.push(nome);
+  const c=citation||'';
+  const th=c.match(/Thread #(\d+)/);
+  if(th) pezzi.push('#'+th[1]);
+  const dt=c.match(MESI_IT);
+  if(dt) pezzi.push(dt[1]+' '+dt[2].toLowerCase());
+  return pezzi.join(' \u00b7 ')||'FONTE';
+}
+
 function pannello(){
   const p=$('#pannello');
   if(sel===null){
@@ -505,7 +525,7 @@ function pannello(){
         <span class="mini-leg">${cucita?'segnale cucito':'frammento letterale'}</span></div>
       <div class="prova"><span class="ctx">${esc(k.prima||'')}</span><mark data-c="${a.colore}" class="${cucita?'cucita':''}">${esc(k.prova||a.ancora.citazione)}</mark><span class="ctx">${esc(k.dopo||'')}</span></div>
       <div class="chip-riga"><button class="chip-f" onclick="apriFonte(${casoSel},${sel})"
-        title="${esc(a.ancora.dove)}">${esc(a.ancora.chip||'FONTE')} ↗</button></div></div>`;
+        title="${esc(a.ancora.dove)}">${esc(etichettaFonte(a.ancora.dove,a.ancora.file))} ↗</button></div></div>`;
   }
   if(a.conflitto){
     h+=`<div class="blocco"><div class="nota tempo"><b>L'archivio è cambiato nel tempo.</b><br>
@@ -525,7 +545,7 @@ function pannello(){
         <span class="mini-leg">${a.ancora?'':'nessuna lo dice alla lettera'}</span></div>
       <div class="chip-riga">${altre.map((x,j)=>
         `<button class="chip-f cucita" onclick="apriPassaggio(${casoSel},${sel},${a.passaggi.indexOf(x)})"
-          title="${esc(x.citation)}">${esc(x.chip||'FONTE')} ↗</button>`).join('')}</div></div>`;
+          title="${esc(x.citation)}">${esc(etichettaFonte(x.citation,x.file))} ↗</button>`).join('')}</div></div>`;
   }
   p.innerHTML=h+'</div>';
 }
